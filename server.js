@@ -6,35 +6,19 @@
     const PORT = process.env.PORT || 3001;
 
   // Replace your current CORS configuration with this:
-
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    // List of allowed origins
-    const allowedOrigins = [
-      'http://localhost:5173',           // Local development
-      'http://localhost:3000',           // Alternative local port
-    //   'https://your-frontend-domain.com', // Replace with your actual production domain
-      'https://x-post-generator-ruby.vercel.app/'     // If using Vercel
-    ];
-    
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // For development, allow any localhost origin
-    if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
-      return callback(null, true);
-    }
-    
-    callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  origin: [
+    'https://x-post-generator-ruby.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173' // Add Vite dev server if needed
+  ],
   credentials: true,
-  optionsSuccessStatus: 200 // For legacy browser support
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
+// Add explicit OPTIONS handling
+app.options('*', cors());
 
     app.use(express.json())
 
