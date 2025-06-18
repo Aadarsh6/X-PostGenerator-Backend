@@ -1,174 +1,3 @@
-//     import express from 'express';
-//     import cors from 'cors';
-//     import 'dotenv/config'
-
-//     const app = express()
-//     const PORT = process.env.PORT || 3001;
-
-//     app.use(cors());
-//     app.use(express.json())
-
-//     const generatePosts = async(prompt, tone, PostType) => {
-//         const response = await fetch("https://api.perplexity.ai/chat/completions", {
-//             method: "POST", 
-//             headers:{
-//                 "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-//                 "Content-Type": "application/json"
-
-//             },
-//             body: JSON.stringify({
-//                 model: 'llama-3-sonar-small-32k-online'
-// ,
-//                 messages: [
-//                     {
-//                         role: 'system',
-//                         content: 'You are an expert X (Twitter) content creator. Always return valid JSON.'
-//                     },
-//                     {
-//                         role: 'user',
-//                         content: `Create ${PostType === 'single' ? '1' : '3'} engaging X posts about "${prompt}" with a ${tone} tone. Return JSON: [{"content": "text", "characterCount": number}]`
-//                     }
-//                 ],
-//                 temperature: 0.8,
-//                 max_tokens: 1000
-//             })
-            
-        
-//         })
-//         if (!response.ok) {
-//             throw new Error(`Perplexity API error: ${response.status} ${response.statusText}`);
-//         }
-
-//         const data = await response.json();
-//         return data.choices[0].message.content.trim();
-//     };
-
-//     // API endpoint
-//     app.post('/api/generate-posts', async (req, res) => {
-//         try {
-//             const { prompt, tone, PostType } = req.body;
-
-//             if (!prompt || !tone || !PostType) {
-//                 return res.status(400).json({ error: 'Missing required fields: prompt, tone, PostType' });
-//             }
-
-//             console.log(`Generating ${PostType} posts for: "${prompt}" with ${tone} tone`);
-
-//             const aiResponse = await generatePosts(prompt, tone, PostType);
-            
-//             let parsedPosts;
-//             try {
-//                 // Clean the response to extract JSON
-//                 const cleanedResponse = aiResponse
-//                     .replace(/```json\n?|\n?```/g, '')
-//                     .replace(/^[^[{]*/, '')
-//                     .replace(/[^}\]]*$/, '')
-//                     .trim();
-                
-//                 parsedPosts = JSON.parse(cleanedResponse);
-//             } catch (parseError) {
-//                 console.warn('Failed to parse AI response, using fallback:', parseError.message);
-//                 // Fallback posts if parsing fails
-//                 const fallbackPosts = PostType === 'single' ? 1 : 3;
-//                 parsedPosts = Array.from({ length: fallbackPosts }, (_, i) => ({
-//                     content: `Exploring ${prompt} with a ${tone} perspective! 🚀 #${prompt.replace(/\s+/g, '').substring(0, 20)}`,
-//                     characterCount: 60 + prompt.length
-//                 }));
-//             }
-
-//             // Ensure it's an array
-//             if (!Array.isArray(parsedPosts)) {
-//                 parsedPosts = [parsedPosts];
-//             }
-
-//             // Validate character counts and update if needed
-//             parsedPosts = parsedPosts.map(post => ({
-//                 ...post,
-//                 characterCount: post.content.length
-//             }));
-
-//             res.json({
-//                 success: true,
-//                 posts: parsedPosts,
-//                 metadata: { 
-//                     prompt, 
-//                     tone, 
-//                     PostType,
-//                     model: 'llama-3.1-sonar-small-128k-online'
-//                 }
-//             });
-
-//         } catch (error) {
-//             console.error('Error generating posts:', error);
-//             res.status(500).json({ 
-//                 error: 'Failed to generate posts',
-//                 details: error.message 
-//             });
-//         }
-//     });
-
-//     // Health check endpoint
-//     app.get('/api/health', (req, res) => {
-//         res.json({ status: 'OK', service: 'X Post Generator Backend' });
-//     });
-
-//     app.listen(PORT, () => {
-//         console.log(`🚀 Server running on port ${PORT}`);
-//         console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-posts`);
-//     });
-
-
-//     // backend/.env
-//     // PERPLEXITY_API_KEY=your_perplexity_api_key_here
-//     // PORT=3001
-
-//     // services/backendService.js - Frontend service
-//     const API_BASE_URL = process.env.NODE_ENV === 'production' 
-//         ? 'https://your-production-url.com' 
-//         : 'http://localhost:3001';
-
-//     export const generateXPosts = async (prompt, tone, PostType) => {
-//         try {
-//             const response = await fetch(`${API_BASE_URL}/api/generate-posts`, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify({
-//                     prompt: prompt.trim(),
-//                     tone,
-//                     PostType
-//                 })
-//             });
-
-//             const data = await response.json();
-
-//             if (!response.ok) {
-//                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
-//             }
-
-//             return data;
-
-//         } catch (error) {
-//             console.error('Error calling backend:', error);
-//             return {
-//                 success: false,
-//                 error: error.message,
-//                 posts: []
-//             };
-//         }
-//     };
-
-//     // Test the health endpoint
-//     export const checkBackendHealth = async () => {
-//         try {
-//             const response = await fetch(`${API_BASE_URL}/api/health`);
-//             return await response.json();
-//         } catch (error) {
-//             console.error('Backend health check failed:', error);
-//             return { status: 'ERROR', error: error.message };
-//         }
-//     };
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config'
@@ -222,27 +51,64 @@ const generatePosts = async(prompt, tone, PostType) => {
         messages: [
             {
                 role: "system",
-                content: "You are an expert X (Twitter) content creator. Always return valid JSON format only."
+                content: `You are a master X (Twitter) content strategist with 10+ years of experience creating viral, engaging posts. You understand audience psychology, retention tactics, and authentic human communication. Your posts consistently drive high engagement because they feel genuine, provide real value, and spark meaningful conversations.
+
+CORE PRINCIPLES:
+- Write like a trusted friend sharing genuine insights, not a corporate account
+- Every word must earn its place - no fluff or filler content
+- Create immediate curiosity hooks that make scrolling impossible
+- Provide actionable value that readers can use immediately
+- Build trust through vulnerability, specificity, and authentic voice
+
+Always return ONLY valid JSON format.`
             },
             {
                 role: "user",
-                content: `Create exactly ${postCount} engaging X (Twitter) posts about "${prompt}" with a ${tone} tone. 
+                content: `Create EXACTLY ${postCount} high-engagement X posts about: "${prompt}"
 
-CRITICAL REQUIREMENTS:
-- Generate EXACTLY ${postCount} posts (this is ${PostType === 'single' ? 'a single post' : `a ${PostType.replace('-', ' ')} with ${postCountDescription} posts`})
-- Each post MUST be under 280 characters (including spaces, hashtags, emojis)
-- Count characters carefully before responding
-- If a post exceeds 280 characters, make it shorter
-- Include relevant hashtags and emojis when appropriate
-- Make posts engaging and shareable
-${PostType !== 'single' ? `- For threads, make posts flow together as a cohesive story/argument
-- Number the posts if it's a thread (1/N, 2/N, etc.)` : ''}
+CRITICAL SPECIFICATIONS:
+✅ Generate EXACTLY ${postCount} posts (${PostType === 'single' ? 'single post' : `${PostType.replace('-', ' ')} with ${postCountDescription} posts`})
+✅ Each post MUST be under 280 characters (count spaces, hashtags, emojis)
+✅ Tone: ${tone} - but make it feel authentic and conversational
+✅ Character count MUST be accurate - double-check before responding
 
-Return ONLY valid JSON: [{"content": "post text here", "characterCount": actual_character_count}]`
+ENGAGEMENT MASTERY RULES:
+🎯 HOOK PSYCHOLOGY: Start with curiosity gaps, bold statements, or "pattern interrupts"
+🎯 VALUE DENSITY: Pack maximum insight into minimum words
+🎯 HUMAN CONNECTION: Use "you," personal experiences, relatable struggles
+🎯 CONVERSATION STARTERS: End with questions or thought-provoking statements
+🎯 AUTHENTICITY: Avoid corporate speak, use contractions, show personality
+
+STRUCTURE GUIDELINES:
+📝 Open with attention-grabbing first line (curiosity, controversy, or bold claim)
+📝 Middle delivers core value/insight with specific examples or numbers
+📝 Close with engagement hook (question, CTA, or memorable thought)
+📝 Use emojis strategically for emphasis, not decoration
+📝 Include 1-2 relevant hashtags maximum, naturally integrated
+
+${PostType !== 'single' ? `THREAD MASTERY:
+🧵 Post 1: Strong hook + promise of value to come  
+🧵 Middle posts: Each delivers a complete micro-insight
+🧵 Final post: Powerful conclusion + engagement CTA
+🧵 Use "🧵" or numbers (1/N, 2/N) for thread navigation
+🧵 Each post should be valuable standalone but better together
+🧵 Create natural cliffhangers between posts` : ''}
+
+TRUST-BUILDING ELEMENTS:
+✨ Share specific examples, numbers, or case studies
+✨ Admit mistakes or show vulnerability when relevant  
+✨ Use "I've learned," "After X years," or "Here's what worked"
+✨ Reference credible sources or personal experience
+✨ Avoid overpromising - be realistic about outcomes
+
+Return ONLY this JSON structure:
+[{"content": "exact tweet content", "characterCount": actual_count}]
+
+Remember: Every post should make someone stop scrolling, think "this person gets it," and want to engage immediately.`
             }
         ],
         temperature: 0.8,
-        max_tokens: PostType === 'long-thread' ? 1000 : 500 // More tokens for longer threads
+        max_tokens: PostType === 'long-thread' ? 1200 : 600 // Increased for better quality
     };
     
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
@@ -305,14 +171,30 @@ app.post('/api/generate-post', async (req, res) => {
             console.log('Cleaned AI Response:', cleanedResponse);
             parsedPosts = JSON.parse(cleanedResponse);
         } catch (parseError) {
-            console.warn('Failed to parse AI response, using fallback:', parseError.message);
+            console.warn('Failed to parse AI response, using enhanced fallback:', parseError.message);
             console.log('Original AI Response:', aiResponse);
             
-            // Fallback posts with correct count
-            parsedPosts = Array.from({ length: expectedCount }, (_, i) => ({
-                content: `${PostType !== 'single' ? `${i + 1}/${expectedCount} ` : ''}Exploring ${prompt} with a ${tone} perspective! 🚀 #${prompt.replace(/\s+/g, '').substring(0, 20)}`,
-                characterCount: 60 + prompt.length + (PostType !== 'single' ? 8 : 0)
-            }));
+            // Enhanced fallback posts with better engagement
+            const createFallbackPost = (index, total) => {
+                const threadPrefix = PostType !== 'single' ? `${index + 1}/${total} ` : '';
+                const hooks = [
+                    "Here's what nobody tells you about",
+                    "After 5 years, I finally learned",
+                    "The biggest mistake people make with",
+                    "This changed everything I knew about",
+                    "Most people get this wrong:"
+                ];
+                
+                const hook = hooks[index % hooks.length];
+                const content = `${threadPrefix}${hook} ${prompt}.\n\nThe truth? It's simpler than you think. 🧵\n\n#${prompt.replace(/\s+/g, '').substring(0, 15)}`;
+                
+                return {
+                    content: content,
+                    characterCount: content.length
+                };
+            };
+            
+            parsedPosts = Array.from({ length: expectedCount }, (_, i) => createFallbackPost(i, expectedCount));
         }
 
         // Ensure it's an array
@@ -325,13 +207,14 @@ app.post('/api/generate-post', async (req, res) => {
             console.warn(`Expected ${expectedCount} posts but got ${parsedPosts.length}. Adjusting...`);
             
             if (parsedPosts.length < expectedCount) {
-                // Add more posts
+                // Add more posts with engaging content
                 const additionalPosts = expectedCount - parsedPosts.length;
                 for (let i = 0; i < additionalPosts; i++) {
                     const postNumber = parsedPosts.length + i + 1;
+                    const content = `${PostType !== 'single' ? `${postNumber}/${expectedCount} ` : ''}The key insight about ${prompt}?\n\nIt's not what you think. Here's the real game-changer... 💡\n\n#Insights`;
                     parsedPosts.push({
-                        content: `${PostType !== 'single' ? `${postNumber}/${expectedCount} ` : ''}More insights on ${prompt} with a ${tone} approach! 💡`,
-                        characterCount: 50 + prompt.length + (PostType !== 'single' ? 8 : 0)
+                        content: content,
+                        characterCount: content.length
                     });
                 }
             } else if (parsedPosts.length > expectedCount) {
@@ -340,27 +223,36 @@ app.post('/api/generate-post', async (req, res) => {
             }
         }
 
-        // Validate character counts and update if needed
+        // Validate character counts and enhance if needed
         parsedPosts = parsedPosts.map((post, index) => {
             const actualCount = post.content ? post.content.length : 0;
             const isOverLimit = actualCount > 280;
             
             if (isOverLimit) {
                 console.warn(`Post ${index + 1} exceeds 280 characters (${actualCount}): ${post.content.substring(0, 50)}...`);
-                // Truncate if over limit
-                const truncated = post.content.substring(0, 277) + '...';
+                // Smart truncation that preserves meaning
+                let truncated = post.content.substring(0, 275);
+                // Try to end at a complete word
+                const lastSpace = truncated.lastIndexOf(' ');
+                if (lastSpace > 200) { // Only if we're not cutting too much
+                    truncated = truncated.substring(0, lastSpace);
+                }
+                truncated += '...';
+                
                 return {
                     ...post,
                     content: truncated,
                     characterCount: truncated.length,
-                    withinLimit: true
+                    withinLimit: true,
+                    wasTruncated: true
                 };
             }
             
             return {
                 ...post,
                 characterCount: actualCount,
-                withinLimit: actualCount <= 280
+                withinLimit: actualCount <= 280,
+                wasTruncated: false
             };
         });
 
@@ -373,7 +265,8 @@ app.post('/api/generate-post', async (req, res) => {
                 PostType,
                 expectedCount,
                 actualCount: parsedPosts.length,
-                model: 'llama-3.1-sonar-small-128k-online'
+                model: 'llama-3.1-sonar-small-128k-online',
+                enhancedPrompt: true
             }
         });
 
@@ -438,18 +331,20 @@ app.get('/api/test-key', async (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
-        service: 'X Post Generator Backend',
-        hasApiKey: !!process.env.PERPLEXITY_API_KEY
+        service: 'Enhanced X Post Generator Backend',
+        hasApiKey: !!process.env.PERPLEXITY_API_KEY,
+        version: '2.0-enhanced'
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🚀 Enhanced Server running on port ${PORT}`);
     console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-post`);
     console.log(`🔑 API Key configured: ${!!process.env.PERPLEXITY_API_KEY}`);
+    console.log(`✨ Enhanced prompting system active`);
 });
 
-// services/backendService.js - Frontend service
+// Enhanced services/backendService.js - Frontend service
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
     ? 'https://your-production-url.com' 
     : 'http://localhost:3001';
