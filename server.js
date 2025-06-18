@@ -16,9 +16,8 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:5173',           // Local development
       'http://localhost:3000',           // Alternative local port
-      'https://your-frontend-domain.com', // Replace with your actual production domain
-      'https://your-netlify-app.netlify.app', // If using Netlify
-      'https://your-vercel-app.vercel.app'     // If using Vercel
+    //   'https://your-frontend-domain.com', // Replace with your actual production domain
+      'https://x-post-generator-ruby.vercel.app/'     // If using Vercel
     ];
     
     if (allowedOrigins.includes(origin)) {
