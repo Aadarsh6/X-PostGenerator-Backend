@@ -47,7 +47,7 @@ const getPostCountDescription = (PostType) => {
     }
 };
 
-// Enhanced universal content generation
+// Enhanced universal content generation with visual appeal
 const generatePosts = async(prompt, tone, PostType) => {
     console.log('Making request to Perplexity API...');
     
@@ -55,83 +55,150 @@ const generatePosts = async(prompt, tone, PostType) => {
     const postCountDescription = getPostCountDescription(PostType);
     
     const requestBody = {
-        model: "sonar-pro",
+        model: "sonar-pro", 
         messages: [
             {
                 role: "system",
-                content: `You are an elite content strategist with expertise across ALL domains. You create viral, high-value posts by:
+                content: `You are an elite content strategist who creates VISUALLY STUNNING, scannable content that stops people mid-scroll. Every post must be structured for maximum visual impact while delivering deep, actionable value.
 
-🎯 RESEARCH FIRST: Use your knowledge base to find specific, lesser-known insights about the topic
-🎯 VALUE DENSITY: Every word must provide concrete, actionable value
-🎯 AUTHENTICITY: Write like someone who's actually done this, not someone who just read about it
-🎯 SPECIFICITY: Use exact numbers, tools, timeframes, and real examples
+🎯 VISUAL HIERARCHY RULES (CRITICAL):
+✅ Use strategic emojis as visual anchors (not decoration)
+✅ Create clear sections with line breaks and spacing
+✅ Bold key concepts with CAPS for emphasis
+✅ Use bullet points (•) or numbers for lists
+✅ Include specific data points and metrics
+✅ End sections with actionable takeaways
 
-CONTENT QUALITY STANDARDS:
-✅ Provide specific tools, resources, or steps (never say "various tools" - name them)
-✅ Include real numbers, percentages, or timeframes when possible
-✅ Reference actual people, companies, or case studies
-✅ Give actionable advice someone can implement today
-✅ Share insider knowledge or counter-intuitive insights
-✅ Use personal language ("I learned," "After testing 50+ tools")
+📐 STRUCTURE TEMPLATES:
+
+FORMAT 1 - PROBLEM/SOLUTION:
+🚨 THE PROBLEM:
+[Specific issue with numbers/data]
+
+💡 THE SOLUTION:
+[Actionable framework/method]
+
+🎯 RESULT:
+[Specific outcome/metric]
+
+FORMAT 2 - STEP-BY-STEP:
+🎯 GOAL: [Specific outcome]
+
+STEP 1: [Action]
+• [Specific tool/method]
+• [Time/resource needed]
+
+STEP 2: [Action]
+• [Specific tool/method]
+• [Expected result]
+
+💪 RESULT: [Measurable outcome]
+
+FORMAT 3 - INSIDER SECRETS:
+🔥 WHAT EVERYONE DOES:
+[Common approach]
+
+⚡ WHAT ACTUALLY WORKS:
+[Counter-intuitive method]
+
+📊 THE DIFFERENCE:
+[Specific metric/improvement]
+
+FORMAT 4 - TOOL/RESOURCE BREAKDOWN:
+🛠️ THE STACK:
+
+• TOOL 1: [Name] → [Specific function]
+• TOOL 2: [Name] → [Specific function]  
+• TOOL 3: [Name] → [Specific function]
+
+💰 COST: [Specific amount]
+📈 ROI: [Specific metric]
+
+ENGAGEMENT MAXIMIZERS:
+💡 Start with pattern interrupts or bold statements
+💡 Use specific numbers, percentages, timeframes
+💡 Include real examples and case studies
+💡 Reference actual tools, people, companies
+💡 End with thought-provoking questions or CTAs
+💡 Create "aha moments" with counter-intuitive insights
+
+DEPTH REQUIREMENTS:
+🧠 Every claim must be backed by specifics
+🧠 Include "why" explanations, not just "what"
+🧠 Provide context for recommendations
+🧠 Share the story behind the insight
+🧠 Connect concepts to real-world applications
 
 ALWAYS return ONLY valid JSON format.`
             },
             {
                 role: "user", 
-                content: `Create ${postCount} high-engagement X posts about: "${prompt}"
+                content: `Create ${postCount} visually stunning, scannable X posts about: "${prompt}"
 
 CRITICAL REQUIREMENTS:
 📊 EXACTLY ${postCount} posts (${PostType === 'single' ? 'single post' : `${PostType} with ${postCountDescription} posts`})
-📊 Each post ~280 characters (count everything)
-📊 Tone: ${tone} but authentic and conversational
-📊 Must include SPECIFIC, actionable information
+📊 Each post ~280 characters (count everything including emojis)
+📊 Tone: ${tone} but structured and visually appealing
+📊 Must be scannable yet deep with specific, actionable information
 
-RESEARCH & DEPTH REQUIREMENTS:
-🔍 Find the most valuable, specific information about "${prompt}"
-🔍 Include exact tools, platforms, resources, or methods
-🔍 Provide real numbers, timeframes, or success metrics
-🔍 Share counterintuitive or lesser-known insights
+VISUAL FORMATTING REQUIREMENTS:
+🎨 Use one of the structure templates provided
+🎨 Strategic emoji placement for visual breaks
+🎨 Clear sections with proper spacing
+🎨 Key terms in CAPS for emphasis
+🎨 Bullet points for lists and breakdowns
+🎨 Numbers and metrics prominently displayed
+
+CONTENT DEPTH REQUIREMENTS:
+🔍 Include specific tools, platforms, methods (never "various tools")
+🔍 Provide exact numbers, percentages, timeframes
+🔍 Reference real examples, case studies, or people
+🔍 Explain the "why" behind recommendations
+🔍 Share counter-intuitive or insider insights
 🔍 Give step-by-step guidance where applicable
-
-CONTENT STRUCTURE:
-Hook (curiosity/bold statement) → Specific Value (tools/numbers/steps) → Engagement (question/CTA)
-
-ENGAGEMENT MAXIMIZERS:
-💡 Start with pattern interrupts: "Everyone says X, but here's what actually works:"
-💡 Use specific examples: "I analyzed 500 successful cases and found..."
-💡 Include surprising statistics or facts
-💡 End with actionable next steps or thought-provoking questions
-💡 Use strategic emojis for emphasis (not decoration)
 
 ${PostType !== 'single' ? `
 THREAD STRUCTURE:
-🧵 Post 1: Hook + promise of specific value coming
-🧵 Middle posts: Each contains one complete, actionable insight
-🧵 Final post: Summary + clear call-to-action
-🧵 Use thread indicators (1/N, 2/N or 🧵)
-🧵 Create mini-cliffhangers between posts` : ''}
+🧵 Post 1: Hook with bold promise + thread preview
+🧵 Middle posts: Each contains one complete, structured insight
+🧵 Final post: Summary with key takeaways + engagement CTA
+🧵 Use thread indicators (1/N, 2/N, etc.)
+🧵 Each post should be visually distinct and scannable
+🧵 Create natural flow between posts with connectors` : ''}
 
-EXAMPLES OF HIGH-VALUE SPECIFICITY:
-❌ Bad: "Use social media tools to grow"
-✅ Good: "Buffer for scheduling, Canva for graphics, Hootsuite Analytics for tracking - this combo grew my following from 500 to 15K in 6 months"
+EXAMPLES OF VISUAL STRUCTURE:
 
-❌ Bad: "Learning is important"  
-✅ Good: "I spent $2,847 on courses that taught me nothing. Then I found these 3 free resources that changed everything: [specific names]"
+❌ BORING:
+"Machine learning is important for businesses. You should learn Python and use various tools."
 
-❌ Bad: "Start small and practice"
-✅ Good: "Day 1: Set up your environment (30 min). Day 2: Build project #1 using [specific tool]. Day 7: You'll have a working prototype"
+✅ ENGAGING:
+🤖 MACHINE LEARNING REALITY CHECK:
 
-INSIDER KNOWLEDGE FOCUS:
+87% of ML projects fail in production.
+
+🚨 THE PROBLEM:
+People focus on algorithms, ignore infrastructure.
+
+💡 THE SOLUTION:
+• Start with data pipelines (Apache Airflow)
+• Master MLOps basics (MLflow + Docker)
+• Learn deployment first (FastAPI + AWS)
+
+📊 RESULT: 3x higher success rate
+
+Who's building their first ML pipeline this week?
+
+RESEARCH DEPTH FOCUS:
 🎯 What do experts know that beginners don't?
-🎯 What are the biggest mistakes people make?
-🎯 What shortcuts or hacks actually work?
-🎯 Which tools/methods give the best ROI?
-🎯 What's the fastest path to results?
+🎯 What are the biggest myths in this field?
+🎯 Which specific tools give the best ROI?
+🎯 What's the fastest path to real results?
+🎯 What counter-intuitive insights change everything?
 
 Return ONLY this JSON:
 [{"content": "exact tweet content", "characterCount": actual_count}]
 
-Make every post so valuable that people bookmark it immediately.`
+Make every post so visually appealing and valuable that people bookmark it immediately.`
             }
         ],
         temperature: 0.7,
@@ -160,59 +227,71 @@ Make every post so valuable that people bookmark it immediately.`
     };
 };
 
-// Enhanced fallback system for high-quality content
-const createHighValueFallback = (prompt, index, total, PostType) => {
+// Enhanced fallback system with visual templates
+const createVisuallyAppealingFallback = (prompt, index, total, PostType) => {
     const threadPrefix = PostType !== 'single' ? `${index + 1}/${total} ` : '';
     
-    // High-value content templates based on proven patterns
-    const valueTemplates = [
+    // Visual content templates for any topic
+    const visualTemplates = [
         {
-            pattern: "mistake_revelation",
-            template: `${threadPrefix}Biggest mistake with ${prompt}?\n\nEveryone focuses on [common approach]. But after analyzing 100+ cases, the real secret is [specific insight].\n\nChanged everything for me. 🧵`
+            pattern: "hook_post",
+            template: `${threadPrefix}🧵 ${prompt.toUpperCase()} THREAD\n\nEveryone thinks they know about ${prompt}.\n\nAfter analyzing 100+ cases, here's what actually works:\n\n• Myth vs Reality\n• Specific tools & tactics\n• Real numbers & results\n\nBookmark this 👇`
         },
         {
-            pattern: "counter_intuitive", 
-            template: `${threadPrefix}Everyone says you need [common belief] for ${prompt}.\n\nActually tested this with 50+ examples. The opposite is true.\n\nHere's what actually works: 👇`
+            pattern: "problem_solution",
+            template: `${threadPrefix}🚨 THE ${prompt.toUpperCase()} PROBLEM:\n\n95% of people get this wrong.\n\n💡 THE SOLUTION:\n• Step 1: [Specific action]\n• Step 2: [Specific tool]\n• Step 3: [Measurable outcome]\n\n📊 RESULT: 3x better results\n\nWho's trying this approach?`
         },
         {
-            pattern: "specific_framework",
-            template: `${threadPrefix}The 3-step framework that transformed my ${prompt} results:\n\n1. [Specific action]\n2. [Specific tool/method]\n3. [Specific outcome]\n\nTook me 2 years to figure this out. ⚡`
+            pattern: "myth_buster",
+            template: `${threadPrefix}🔥 ${prompt.toUpperCase()} MYTH:\n"You need expensive tools to succeed"\n\n⚡ REALITY:\nI tested 20+ free alternatives.\n\nTop 3 that actually work:\n• Tool A → Specific function\n• Tool B → Specific function\n• Tool C → Specific function\n\nSaved $500/month`
         },
         {
-            pattern: "tool_stack",
-            template: `${threadPrefix}My exact ${prompt} tech stack:\n\n• Tool 1 for [specific function]\n• Tool 2 for [specific function] \n• Tool 3 for [specific function]\n\nTotal cost: $X/month. ROI: [specific metric] 📈`
+            pattern: "framework",
+            template: `${threadPrefix}🎯 THE ${prompt.toUpperCase()} FRAMEWORK:\n\nWeek 1: [Specific milestone]\n• Action item 1\n• Action item 2\n\nWeek 2: [Specific milestone]\n• Action item 3\n• Action item 4\n\n📈 By Month 1: [Measurable result]\n\nMost people quit at week 2. Don't.`
         },
         {
-            pattern: "timeline_breakdown",
-            template: `${threadPrefix}Timeline for mastering ${prompt}:\n\nWeek 1-2: [Specific milestone]\nWeek 3-4: [Specific milestone]\nMonth 2: [Specific milestone]\n\nMost people quit at week 3. Don't. 💪`
+            pattern: "insider_secret",
+            template: `${threadPrefix}🤫 ${prompt.toUpperCase()} INSIDER SECRET:\n\nWhile everyone focuses on [common approach], the real pros do this:\n\n• [Counter-intuitive method]\n• [Specific technique]\n• [Hidden advantage]\n\n📊 THE DIFFERENCE:\n40% better results in half the time`
+        },
+        {
+            pattern: "tool_breakdown",
+            template: `${threadPrefix}🛠️ MY ${prompt.toUpperCase()} STACK:\n\n• PRIMARY: [Tool name] → [Function]\n• SECONDARY: [Tool name] → [Function]\n• BONUS: [Tool name] → [Function]\n\n💰 TOTAL COST: $X/month\n📈 ROI: [Specific metric]\n\nWhat's in your stack?`
+        },
+        {
+            pattern: "recap_cta",
+            template: `${threadPrefix}📋 ${prompt.toUpperCase()} RECAP:\n\n✅ [Key insight 1]\n✅ [Key insight 2]\n✅ [Key insight 3]\n✅ [Key insight 4]\n\n🎯 NEXT STEP:\nPick ONE insight and implement it this week.\n\nWhich one resonates most with you? 👇`
         }
     ];
     
-    const template = valueTemplates[index % valueTemplates.length];
-    const content = template.template.replace(/\[([^\]]+)\]/g, (match, placeholder) => {
-        // Generate specific content based on placeholder
-        switch(placeholder) {
-            case 'common approach':
-                return 'the basic tutorials';
-            case 'specific insight': 
-                return 'focusing on real-world application first';
-            case 'common belief':
-                return 'expensive tools';
-            case 'Specific action':
-                return 'Start with one focused project';
-            case 'Specific tool/method':
-                return 'Use free alternatives first';
-            case 'Specific outcome':
-                return 'Measure weekly progress';
-            case 'specific function':
-                return 'core functionality';
-            case 'specific metric':
-                return '300% improvement';
-            case 'Specific milestone':
-                return 'Complete first project';
-            default:
-                return placeholder;
-        }
+    const template = visualTemplates[index % visualTemplates.length];
+    let content = template.template;
+    
+    // Replace placeholders with topic-specific content
+    content = content.replace(/\[([^\]]+)\]/g, (match, placeholder) => {
+        const replacements = {
+            'Specific action': 'Define clear goals',
+            'Specific tool': 'Use proven frameworks',
+            'Measurable outcome': 'Track weekly progress',
+            'Specific function': 'Core automation',
+            'Specific milestone': 'Foundation setup',
+            'Action item 1': 'Research requirements',
+            'Action item 2': 'Set up basic system',
+            'Action item 3': 'Test and iterate',
+            'Action item 4': 'Scale what works',
+            'Measurable result': 'First tangible outcome',
+            'common approach': 'following tutorials',
+            'Counter-intuitive method': 'Start with real projects',
+            'Specific technique': 'Focus on one thing',
+            'Hidden advantage': 'Learn from failures',
+            'Tool name': 'Industry standard',
+            'Function': 'key workflow',
+            'Specific metric': '300% improvement',
+            'Key insight 1': 'Quality over quantity',
+            'Key insight 2': 'Start before you\'re ready',
+            'Key insight 3': 'Consistency beats perfection',
+            'Key insight 4': 'Learn by doing'
+        };
+        return replacements[placeholder] || placeholder;
     });
     
     return {
@@ -250,11 +329,10 @@ app.post('/api/generate-post', async (req, res) => {
             
             parsedPosts = JSON.parse(cleanedResponse);
         } catch (parseError) {
-            console.warn('Using high-value fallback system');
+            console.warn('Using visually appealing fallback system');
             
-            // Use high-quality fallback instead of generic content
             parsedPosts = Array.from({ length: expectedCount }, (_, i) => 
-                createHighValueFallback(prompt, i, expectedCount, PostType)
+                createVisuallyAppealingFallback(prompt, i, expectedCount, PostType)
             );
         }
 
@@ -268,7 +346,7 @@ app.post('/api/generate-post', async (req, res) => {
                 const additionalPosts = expectedCount - parsedPosts.length;
                 for (let i = 0; i < additionalPosts; i++) {
                     parsedPosts.push(
-                        createHighValueFallback(prompt, parsedPosts.length + i, expectedCount, PostType)
+                        createVisuallyAppealingFallback(prompt, parsedPosts.length + i, expectedCount, PostType)
                     );
                 }
             } else if (parsedPosts.length > expectedCount) {
@@ -315,9 +393,10 @@ app.post('/api/generate-post', async (req, res) => {
                 PostType,
                 expectedCount,
                 actualCount: parsedPosts.length,
-                model: 'llama-3.1-sonar-small-128k-online',
+                model: 'sonar-pro',
                 enhancedPrompt: true,
-                highValueSystem: true
+                visuallyOptimized: true,
+                structuredFormat: true
             }
         });
 
@@ -344,7 +423,7 @@ app.get('/api/test-key', async (req, res) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "llama-3.1-sonar-small-128k-online",
+                model: "sonar-pro",
                 messages: [{ role: "user", content: "Say hello" }],
                 max_tokens: 10
             })
@@ -377,17 +456,17 @@ app.get('/api/test-key', async (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
-        service: 'Universal High-Value Post Generator',
+        service: 'Universal Visual Content Generator',
         hasApiKey: !!process.env.PERPLEXITY_API_KEY,
-        version: '3.0-universal-high-value'
+        version: '4.0-universal-visual'
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Universal High-Value Server running on port ${PORT}`);
+    console.log(`🚀 Universal Visual Content Server running on port ${PORT}`);
     console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-post`);
     console.log(`🔑 API Key configured: ${!!process.env.PERPLEXITY_API_KEY}`);
-    console.log(`✨ Universal high-value content system active`);
+    console.log(`✨ Visual content system active - all topics now scannable & engaging`);
 });
 
 // Frontend service remains the same
