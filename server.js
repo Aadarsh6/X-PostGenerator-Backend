@@ -1,418 +1,448 @@
-    import express from 'express';
-    import cors from 'cors';
-    import 'dotenv/config'
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config'
 
-    const app = express()
-    const PORT = process.env.PORT || 3001;
+const app = express()
+const PORT = process.env.PORT || 3001;
 
-  // Replace your current CORS configuration with this:
+// CORS configuration
 app.use(cors({
   origin: [
     'https://x-post-generator-ruby.vercel.app',
     'http://localhost:3000',
-    'http://localhost:5173' // Add Vite dev server if needed
+    'http://localhost:5173'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Add explicit OPTIONS handling
 app.options('*', cors());
+app.use(express.json())
 
-    app.use(express.json())
+// Helper functions
+const getPostCount = (PostType) => {
+    switch(PostType) {
+        case 'single':
+            return 1;
+        case 'thread':
+            return Math.floor(Math.random() * 4) + 2;
+        case 'long-thread':
+            return Math.floor(Math.random() * 5) + 6;
+        default:
+            return 1;
+    }
+};
 
-    // Helper function to determine post count based on type
-    const getPostCount = (PostType) => {
-        switch(PostType) {
-            case 'single':
-                return 1;
-            case 'thread':
-                return Math.floor(Math.random() * 4) + 2; // Random between 2-5
-            case 'long-thread':
-                return Math.floor(Math.random() * 5) + 6; // Random between 6-10
-            default:
-                return 1;
-        }
-    };
+const getPostCountDescription = (PostType) => {
+    switch(PostType) {
+        case 'single':
+            return '1';
+        case 'thread':
+            return 'between 2-5';
+        case 'long-thread':
+            return 'between 6-10';
+        default:
+            return '1';
+    }
+};
 
-    // Helper function to get post count description for AI
-    const getPostCountDescription = (PostType) => {
-        switch(PostType) {
-            case 'single':
-                return '1';
-            case 'thread':
-                return 'between 2-5';
-            case 'long-thread':
-                return 'between 6-10';
-            default:
-                return '1';
-        }
-    };
+// Enhanced universal content generation
+const generatePosts = async(prompt, tone, PostType) => {
+    console.log('Making request to Perplexity API...');
+    
+    const postCount = getPostCount(PostType);
+    const postCountDescription = getPostCountDescription(PostType);
+    
+    const requestBody = {
+        model: "sonar-pro",
+        messages: [
+            {
+                role: "system",
+                content: `You are an elite content strategist with expertise across ALL domains. You create viral, high-value posts by:
 
-    const generatePosts = async(prompt, tone, PostType) => {
-        console.log('Making request to Perplexity API...');
-        console.log('API Key exists:', !!process.env.PERPLEXITY_API_KEY);
-        console.log('API Key prefix:', process.env.PERPLEXITY_API_KEY?.substring(0, 5));
-        
-        const postCount = getPostCount(PostType);
-        const postCountDescription = getPostCountDescription(PostType);
-        
-        console.log(`Generating ${postCount} posts for ${PostType} type`);
-        
-        const requestBody = {
-            model: "llama-3.1-sonar-small-128k-online",
-            messages: [
-                {
-                    role: "system",
-                    content: `You are a master X (Twitter) content strategist with 10+ years of experience creating viral, engaging posts. You understand audience psychology, retention tactics, and authentic human communication. Your posts consistently drive high engagement because they feel genuine, provide real value, and spark meaningful conversations.
+🎯 RESEARCH FIRST: Use your knowledge base to find specific, lesser-known insights about the topic
+🎯 VALUE DENSITY: Every word must provide concrete, actionable value
+🎯 AUTHENTICITY: Write like someone who's actually done this, not someone who just read about it
+🎯 SPECIFICITY: Use exact numbers, tools, timeframes, and real examples
 
-    CORE PRINCIPLES:
-    - Write like a trusted friend sharing genuine insights, not a corporate account
-    - Every word must earn its place - no fluff or filler content
-    - Create immediate curiosity hooks that make scrolling impossible
-    - Provide actionable value that readers can use immediately
-    - Build trust through vulnerability, specificity, and authentic voice
+CONTENT QUALITY STANDARDS:
+✅ Provide specific tools, resources, or steps (never say "various tools" - name them)
+✅ Include real numbers, percentages, or timeframes when possible
+✅ Reference actual people, companies, or case studies
+✅ Give actionable advice someone can implement today
+✅ Share insider knowledge or counter-intuitive insights
+✅ Use personal language ("I learned," "After testing 50+ tools")
 
-    Always return ONLY valid JSON format.`
-                },
-                {
-                    role: "user",
-                    content: `Create EXACTLY ${postCount} high-engagement X posts about: "${prompt}"
-
-    CRITICAL SPECIFICATIONS:
-    ✅ Generate EXACTLY ${postCount} posts (${PostType === 'single' ? 'single post' : `${PostType.replace('-', ' ')} with ${postCountDescription} posts`})
-    ✅ Each post MUST be under 280 characters (count spaces, hashtags, emojis)
-    ✅ Tone: ${tone} - but make it feel authentic and conversational
-    ✅ Character count MUST be accurate - double-check before responding
-
-    ENGAGEMENT MASTERY RULES:
-    🎯 HOOK PSYCHOLOGY: Start with curiosity gaps, bold statements, or "pattern interrupts"
-    🎯 VALUE DENSITY: Pack maximum insight into minimum words
-    🎯 HUMAN CONNECTION: Use "you," personal experiences, relatable struggles
-    🎯 CONVERSATION STARTERS: End with questions or thought-provoking statements
-    🎯 AUTHENTICITY: Avoid corporate speak, use contractions, show personality
-
-    STRUCTURE GUIDELINES:
-    📝 Open with attention-grabbing first line (curiosity, controversy, or bold claim)
-    📝 Middle delivers core value/insight with specific examples or numbers
-    📝 Close with engagement hook (question, CTA, or memorable thought)
-    📝 Use emojis strategically for emphasis, not decoration
-    📝 Include 1-2 relevant hashtags maximum, naturally integrated
-
-    ${PostType !== 'single' ? `THREAD MASTERY:
-    🧵 Post 1: Strong hook + promise of value to come  
-    🧵 Middle posts: Each delivers a complete micro-insight
-    🧵 Final post: Powerful conclusion + engagement CTA
-    🧵 Use "🧵" or numbers (1/N, 2/N) for thread navigation
-    🧵 Each post should be valuable standalone but better together
-    🧵 Create natural cliffhangers between posts` : ''}
-
-    TRUST-BUILDING ELEMENTS:
-    ✨ Share specific examples, numbers, or case studies
-    ✨ Admit mistakes or show vulnerability when relevant  
-    ✨ Use "I've learned," "After X years," or "Here's what worked"
-    ✨ Reference credible sources or personal experience
-    ✨ Avoid overpromising - be realistic about outcomes
-
-    Return ONLY this JSON structure:
-    [{"content": "exact tweet content", "characterCount": actual_count}]
-
-    Remember: Every post should make someone stop scrolling, think "this person gets it," and want to engage immediately.`
-                }
-            ],
-            temperature: 0.8,
-            max_tokens: PostType === 'long-thread' ? 1200 : 600 // Increased for better quality
-        };
-        
-        console.log('Request body:', JSON.stringify(requestBody, null, 2));
-        
-        const response = await fetch("https://api.perplexity.ai/chat/completions", {
-            method: "POST", 
-            headers:{
-                "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-                "Content-Type": "application/json"
+ALWAYS return ONLY valid JSON format.`
             },
-            body: JSON.stringify(requestBody)
-        })
+            {
+                role: "user", 
+                content: `Create ${postCount} high-engagement X posts about: "${prompt}"
 
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+CRITICAL REQUIREMENTS:
+📊 EXACTLY ${postCount} posts (${PostType === 'single' ? 'single post' : `${PostType} with ${postCountDescription} posts`})
+📊 Each post ~280 characters (count everything)
+📊 Tone: ${tone} but authentic and conversational
+📊 Must include SPECIFIC, actionable information
 
-        if (!response.ok) {
-            const errorData = await response.text();
-            console.error('Perplexity API Error Response:', errorData);
-            throw new Error(`Perplexity API error: ${response.status} ${response.statusText} - ${errorData}`);
+RESEARCH & DEPTH REQUIREMENTS:
+🔍 Find the most valuable, specific information about "${prompt}"
+🔍 Include exact tools, platforms, resources, or methods
+🔍 Provide real numbers, timeframes, or success metrics
+🔍 Share counterintuitive or lesser-known insights
+🔍 Give step-by-step guidance where applicable
+
+CONTENT STRUCTURE:
+Hook (curiosity/bold statement) → Specific Value (tools/numbers/steps) → Engagement (question/CTA)
+
+ENGAGEMENT MAXIMIZERS:
+💡 Start with pattern interrupts: "Everyone says X, but here's what actually works:"
+💡 Use specific examples: "I analyzed 500 successful cases and found..."
+💡 Include surprising statistics or facts
+💡 End with actionable next steps or thought-provoking questions
+💡 Use strategic emojis for emphasis (not decoration)
+
+${PostType !== 'single' ? `
+THREAD STRUCTURE:
+🧵 Post 1: Hook + promise of specific value coming
+🧵 Middle posts: Each contains one complete, actionable insight
+🧵 Final post: Summary + clear call-to-action
+🧵 Use thread indicators (1/N, 2/N or 🧵)
+🧵 Create mini-cliffhangers between posts` : ''}
+
+EXAMPLES OF HIGH-VALUE SPECIFICITY:
+❌ Bad: "Use social media tools to grow"
+✅ Good: "Buffer for scheduling, Canva for graphics, Hootsuite Analytics for tracking - this combo grew my following from 500 to 15K in 6 months"
+
+❌ Bad: "Learning is important"  
+✅ Good: "I spent $2,847 on courses that taught me nothing. Then I found these 3 free resources that changed everything: [specific names]"
+
+❌ Bad: "Start small and practice"
+✅ Good: "Day 1: Set up your environment (30 min). Day 2: Build project #1 using [specific tool]. Day 7: You'll have a working prototype"
+
+INSIDER KNOWLEDGE FOCUS:
+🎯 What do experts know that beginners don't?
+🎯 What are the biggest mistakes people make?
+🎯 What shortcuts or hacks actually work?
+🎯 Which tools/methods give the best ROI?
+🎯 What's the fastest path to results?
+
+Return ONLY this JSON:
+[{"content": "exact tweet content", "characterCount": actual_count}]
+
+Make every post so valuable that people bookmark it immediately.`
+            }
+        ],
+        temperature: 0.7,
+        max_tokens: PostType === 'long-thread' ? 1500 : 800
+    };
+    
+    const response = await fetch("https://api.perplexity.ai/chat/completions", {
+        method: "POST", 
+        headers:{
+            "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestBody)
+    })
+
+    if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Perplexity API Error Response:', errorData);
+        throw new Error(`Perplexity API error: ${response.status} ${response.statusText} - ${errorData}`);
+    }
+
+    const data = await response.json();
+    return {
+        content: data.choices[0].message.content.trim(),
+        expectedCount: postCount
+    };
+};
+
+// Enhanced fallback system for high-quality content
+const createHighValueFallback = (prompt, index, total, PostType) => {
+    const threadPrefix = PostType !== 'single' ? `${index + 1}/${total} ` : '';
+    
+    // High-value content templates based on proven patterns
+    const valueTemplates = [
+        {
+            pattern: "mistake_revelation",
+            template: `${threadPrefix}Biggest mistake with ${prompt}?\n\nEveryone focuses on [common approach]. But after analyzing 100+ cases, the real secret is [specific insight].\n\nChanged everything for me. 🧵`
+        },
+        {
+            pattern: "counter_intuitive", 
+            template: `${threadPrefix}Everyone says you need [common belief] for ${prompt}.\n\nActually tested this with 50+ examples. The opposite is true.\n\nHere's what actually works: 👇`
+        },
+        {
+            pattern: "specific_framework",
+            template: `${threadPrefix}The 3-step framework that transformed my ${prompt} results:\n\n1. [Specific action]\n2. [Specific tool/method]\n3. [Specific outcome]\n\nTook me 2 years to figure this out. ⚡`
+        },
+        {
+            pattern: "tool_stack",
+            template: `${threadPrefix}My exact ${prompt} tech stack:\n\n• Tool 1 for [specific function]\n• Tool 2 for [specific function] \n• Tool 3 for [specific function]\n\nTotal cost: $X/month. ROI: [specific metric] 📈`
+        },
+        {
+            pattern: "timeline_breakdown",
+            template: `${threadPrefix}Timeline for mastering ${prompt}:\n\nWeek 1-2: [Specific milestone]\nWeek 3-4: [Specific milestone]\nMonth 2: [Specific milestone]\n\nMost people quit at week 3. Don't. 💪`
+        }
+    ];
+    
+    const template = valueTemplates[index % valueTemplates.length];
+    const content = template.template.replace(/\[([^\]]+)\]/g, (match, placeholder) => {
+        // Generate specific content based on placeholder
+        switch(placeholder) {
+            case 'common approach':
+                return 'the basic tutorials';
+            case 'specific insight': 
+                return 'focusing on real-world application first';
+            case 'common belief':
+                return 'expensive tools';
+            case 'Specific action':
+                return 'Start with one focused project';
+            case 'Specific tool/method':
+                return 'Use free alternatives first';
+            case 'Specific outcome':
+                return 'Measure weekly progress';
+            case 'specific function':
+                return 'core functionality';
+            case 'specific metric':
+                return '300% improvement';
+            case 'Specific milestone':
+                return 'Complete first project';
+            default:
+                return placeholder;
+        }
+    });
+    
+    return {
+        content: content,
+        characterCount: content.length
+    };
+};
+
+// Main API endpoint
+app.post('/api/generate-post', async (req, res) => {
+    try {
+        const { prompt, tone, PostType } = req.body;
+
+        if (!prompt || !tone || !PostType) {
+            return res.status(400).json({ error: 'Missing required fields: prompt, tone, PostType' });
         }
 
-        const data = await response.json();
-        console.log('Perplexity API Success Response:', JSON.stringify(data, null, 2));
-        return {
-            content: data.choices[0].message.content.trim(),
-            expectedCount: postCount
-        };
-    };
+        if (!process.env.PERPLEXITY_API_KEY) {
+            return res.status(500).json({ error: 'PERPLEXITY_API_KEY not configured' });
+        }
 
-    // API endpoint
-    app.post('/api/generate-post', async (req, res) => {
+        console.log(`Generating ${PostType} posts for: "${prompt}" with ${tone} tone`);
+
+        const aiResult = await generatePosts(prompt, tone, PostType);
+        const { content: aiResponse, expectedCount } = aiResult;
+        
+        let parsedPosts;
         try {
-            const { prompt, tone, PostType } = req.body;
-
-            if (!prompt || !tone || !PostType) {
-                return res.status(400).json({ error: 'Missing required fields: prompt, tone, PostType' });
-            }
-
-            // Validate API key
-            if (!process.env.PERPLEXITY_API_KEY) {
-                return res.status(500).json({ error: 'PERPLEXITY_API_KEY not configured' });
-            }
-
-            console.log(`Generating ${PostType} posts for: "${prompt}" with ${tone} tone`);
-
-            const aiResult = await generatePosts(prompt, tone, PostType);
-            const { content: aiResponse, expectedCount } = aiResult;
+            const cleanedResponse = aiResponse
+                .replace(/```json\n?|\n?```/g, '')
+                .replace(/```\n?|\n?```/g, '')
+                .replace(/^[^[{]*/, '')
+                .replace(/[^}\]]*$/, '')
+                .trim();
             
-            let parsedPosts;
-            try {
-                // Clean the response to extract JSON
-                const cleanedResponse = aiResponse
-                    .replace(/```json\n?|\n?```/g, '')
-                    .replace(/```\n?|\n?```/g, '')
-                    .replace(/^[^[{]*/, '')
-                    .replace(/[^}\]]*$/, '')
-                    .trim();
-                
-                console.log('Cleaned AI Response:', cleanedResponse);
-                parsedPosts = JSON.parse(cleanedResponse);
-            } catch (parseError) {
-                console.warn('Failed to parse AI response, using enhanced fallback:', parseError.message);
-                console.log('Original AI Response:', aiResponse);
-                
-                // Enhanced fallback posts with better engagement
-                const createFallbackPost = (index, total) => {
-                    const threadPrefix = PostType !== 'single' ? `${index + 1}/${total} ` : '';
-                    const hooks = [
-                        "Here's what nobody tells you about",
-                        "After 5 years, I finally learned",
-                        "The biggest mistake people make with",
-                        "This changed everything I knew about",
-                        "Most people get this wrong:"
-                    ];
-                    
-                    const hook = hooks[index % hooks.length];
-                    const content = `${threadPrefix}${hook} ${prompt}.\n\nThe truth? It's simpler than you think. 🧵\n\n#${prompt.replace(/\s+/g, '').substring(0, 15)}`;
-                    
-                    return {
-                        content: content,
-                        characterCount: content.length
-                    };
-                };
-                
-                parsedPosts = Array.from({ length: expectedCount }, (_, i) => createFallbackPost(i, expectedCount));
-            }
+            parsedPosts = JSON.parse(cleanedResponse);
+        } catch (parseError) {
+            console.warn('Using high-value fallback system');
+            
+            // Use high-quality fallback instead of generic content
+            parsedPosts = Array.from({ length: expectedCount }, (_, i) => 
+                createHighValueFallback(prompt, i, expectedCount, PostType)
+            );
+        }
 
-            // Ensure it's an array
-            if (!Array.isArray(parsedPosts)) {
-                parsedPosts = [parsedPosts];
-            }
+        if (!Array.isArray(parsedPosts)) {
+            parsedPosts = [parsedPosts];
+        }
 
-            // Ensure we have the right number of posts
-            if (parsedPosts.length !== expectedCount) {
-                console.warn(`Expected ${expectedCount} posts but got ${parsedPosts.length}. Adjusting...`);
-                
-                if (parsedPosts.length < expectedCount) {
-                    // Add more posts with engaging content
-                    const additionalPosts = expectedCount - parsedPosts.length;
-                    for (let i = 0; i < additionalPosts; i++) {
-                        const postNumber = parsedPosts.length + i + 1;
-                        const content = `${PostType !== 'single' ? `${postNumber}/${expectedCount} ` : ''}The key insight about ${prompt}?\n\nIt's not what you think. Here's the real game-changer... 💡\n\n#Insights`;
-                        parsedPosts.push({
-                            content: content,
-                            characterCount: content.length
-                        });
-                    }
-                } else if (parsedPosts.length > expectedCount) {
-                    // Trim excess posts
-                    parsedPosts = parsedPosts.slice(0, expectedCount);
+        // Ensure correct post count
+        if (parsedPosts.length !== expectedCount) {
+            if (parsedPosts.length < expectedCount) {
+                const additionalPosts = expectedCount - parsedPosts.length;
+                for (let i = 0; i < additionalPosts; i++) {
+                    parsedPosts.push(
+                        createHighValueFallback(prompt, parsedPosts.length + i, expectedCount, PostType)
+                    );
                 }
+            } else if (parsedPosts.length > expectedCount) {
+                parsedPosts = parsedPosts.slice(0, expectedCount);
             }
+        }
 
-            // Validate character counts and enhance if needed
-            parsedPosts = parsedPosts.map((post, index) => {
-                const actualCount = post.content ? post.content.length : 0;
-                const isOverLimit = actualCount > 280;
-                
-                if (isOverLimit) {
-                    console.warn(`Post ${index + 1} exceeds 280 characters (${actualCount}): ${post.content.substring(0, 50)}...`);
-                    // Smart truncation that preserves meaning
-                    let truncated = post.content.substring(0, 275);
-                    // Try to end at a complete word
-                    const lastSpace = truncated.lastIndexOf(' ');
-                    if (lastSpace > 200) { // Only if we're not cutting too much
-                        truncated = truncated.substring(0, lastSpace);
-                    }
-                    truncated += '...';
-                    
-                    return {
-                        ...post,
-                        content: truncated,
-                        characterCount: truncated.length,
-                        withinLimit: true,
-                        wasTruncated: true
-                    };
+        // Validate and optimize character counts
+        parsedPosts = parsedPosts.map((post, index) => {
+            const actualCount = post.content ? post.content.length : 0;
+            const isOverLimit = actualCount > 280;
+            
+            if (isOverLimit) {
+                let truncated = post.content.substring(0, 270);
+                const lastSpace = truncated.lastIndexOf(' ');
+                if (lastSpace > 200) {
+                    truncated = truncated.substring(0, lastSpace);
                 }
+                truncated += '...';
                 
                 return {
                     ...post,
-                    characterCount: actualCount,
-                    withinLimit: actualCount <= 280,
-                    wasTruncated: false
+                    content: truncated,
+                    characterCount: truncated.length,
+                    withinLimit: true,
+                    wasTruncated: true
                 };
-            });
-
-            res.json({
-                success: true,
-                posts: parsedPosts,
-                metadata: { 
-                    prompt, 
-                    tone, 
-                    PostType,
-                    expectedCount,
-                    actualCount: parsedPosts.length,
-                    model: 'llama-3.1-sonar-small-128k-online',
-                    enhancedPrompt: true
-                }
-            });
-
-        } catch (error) {
-            console.error('Error generating posts:', error);
-            res.status(500).json({ 
-                error: 'Failed to generate posts',
-                details: error.message 
-            });
-        }
-    });
-
-    // Test endpoint to verify API key
-    app.get('/api/test-key', async (req, res) => {
-        try {
-            if (!process.env.PERPLEXITY_API_KEY) {
-                return res.status(500).json({ error: 'PERPLEXITY_API_KEY not configured' });
             }
-
-            const response = await fetch("https://api.perplexity.ai/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.1-sonar-small-128k-online",
-                    messages: [
-                        {
-                            role: "user",
-                            content: "Say hello"
-                        }
-                    ],
-                    max_tokens: 10
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.text();
-                return res.status(response.status).json({ 
-                    error: 'API Key test failed',
-                    details: errorData 
-                });
-            }
-
-            const data = await response.json();
-            res.json({ 
-                success: true, 
-                message: 'API Key is working',
-                response: data.choices?.[0]?.message?.content || 'No content'
-            });
-
-        } catch (error) {
-            res.status(500).json({ 
-                error: 'API Key test failed',
-                details: error.message 
-            });
-        }
-    });
-
-    // Health check endpoint
-    app.get('/api/health', (req, res) => {
-        res.json({ 
-            status: 'OK', 
-            service: 'Enhanced X Post Generator Backend',
-            hasApiKey: !!process.env.PERPLEXITY_API_KEY,
-            version: '2.0-enhanced'
-        });
-    });
-
-    app.listen(PORT, () => {
-        console.log(`🚀 Enhanced Server running on port ${PORT}`);
-        console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-post`);
-        console.log(`🔑 API Key configured: ${!!process.env.PERPLEXITY_API_KEY}`);
-        console.log(`✨ Enhanced prompting system active`);
-    });
-
-    // Enhanced services/backendService.js - Frontend service
-    const API_BASE_URL = process.env.NODE_ENV === 'production' 
-        ? 'https://your-production-url.com' 
-        : 'http://localhost:3001';
-
-    export const generateXPosts = async (prompt, tone, PostType) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/generate-post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: prompt.trim(),
-                    tone,
-                    PostType
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            }
-
-            return data;
-
-        } catch (error) {
-            console.error('Error calling backend:', error);
+            
             return {
-                success: false,
-                error: error.message,
-                posts: []
+                ...post,
+                characterCount: actualCount,
+                withinLimit: actualCount <= 280,
+                wasTruncated: false
             };
-        }
-    };
+        });
 
-    // Test the API key
-    export const testApiKey = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/test-key`);
-            return await response.json();
-        } catch (error) {
-            console.error('API key test failed:', error);
-            return { success: false, error: error.message };
-        }
-    };
+        res.json({
+            success: true,
+            posts: parsedPosts,
+            metadata: { 
+                prompt, 
+                tone, 
+                PostType,
+                expectedCount,
+                actualCount: parsedPosts.length,
+                model: 'llama-3.1-sonar-small-128k-online',
+                enhancedPrompt: true,
+                highValueSystem: true
+            }
+        });
 
-    // Test the health endpoint
-    export const checkBackendHealth = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/health`);
-            return await response.json();
-        } catch (error) {
-            console.error('Backend health check failed:', error);
-            return { status: 'ERROR', error: error.message };
+    } catch (error) {
+        console.error('Error generating posts:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate posts',
+            details: error.message 
+        });
+    }
+});
+
+// Test endpoint
+app.get('/api/test-key', async (req, res) => {
+    try {
+        if (!process.env.PERPLEXITY_API_KEY) {
+            return res.status(500).json({ error: 'PERPLEXITY_API_KEY not configured' });
         }
-    };
+
+        const response = await fetch("https://api.perplexity.ai/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama-3.1-sonar-small-128k-online",
+                messages: [{ role: "user", content: "Say hello" }],
+                max_tokens: 10
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            return res.status(response.status).json({ 
+                error: 'API Key test failed',
+                details: errorData 
+            });
+        }
+
+        const data = await response.json();
+        res.json({ 
+            success: true, 
+            message: 'API Key is working',
+            response: data.choices?.[0]?.message?.content || 'No content'
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'API Key test failed',
+            details: error.message 
+        });
+    }
+});
+
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        service: 'Universal High-Value Post Generator',
+        hasApiKey: !!process.env.PERPLEXITY_API_KEY,
+        version: '3.0-universal-high-value'
+    });
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 Universal High-Value Server running on port ${PORT}`);
+    console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-post`);
+    console.log(`🔑 API Key configured: ${!!process.env.PERPLEXITY_API_KEY}`);
+    console.log(`✨ Universal high-value content system active`);
+});
+
+// Frontend service remains the same
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+    ? 'https://your-production-url.com' 
+    : 'http://localhost:3001';
+
+export const generateXPosts = async (prompt, tone, PostType) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/generate-post`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: prompt.trim(),
+                tone,
+                PostType
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error('Error calling backend:', error);
+        return {
+            success: false,
+            error: error.message,
+            posts: []
+        };
+    }
+};
+
+export const testApiKey = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/test-key`);
+        return await response.json();
+    } catch (error) {
+        console.error('API key test failed:', error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const checkBackendHealth = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/health`);
+        return await response.json();
+    } catch (error) {
+        console.error('Backend health check failed:', error);
+        return { status: 'ERROR', error: error.message };
+    }
+};
