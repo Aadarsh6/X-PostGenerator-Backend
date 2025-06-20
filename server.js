@@ -67,9 +67,9 @@ const generatePosts = async(prompt, tone, PostType) => {
 ✅ Bold key concepts with CAPS for emphasis
 ✅ Use bullet points (•) or numbers for lists
 ✅ Include specific data points and metrics
-✅ End sections with actionable takeaways
+✅ End sections with actionable takeaways or thought-provoking questions
 
-📐 STRUCTURE TEMPLATES:
+📐 STRUCTURE TEMPLATES (pick one per post):
 
 FORMAT 1 - PROBLEM/SOLUTION:
 🚨 THE PROBLEM:
@@ -129,64 +129,13 @@ DEPTH REQUIREMENTS:
 🧠 Share the story behind the insight
 🧠 Connect concepts to real-world applications
 
-ALWAYS return ONLY valid JSON format.`
-            },
-            {
-                role: "user", 
-                content: `Create ${postCount} visually stunning, scannable X posts about: "${prompt}"
-
-CRITICAL REQUIREMENTS:
-📊 EXACTLY ${postCount} posts (${PostType === 'single' ? 'single post' : `${PostType} with ${postCountDescription} posts`})
-📊 Each post around 280 characters (count everything including emojis)
-📊 Tone: ${tone} but structured and visually appealing
-📊 Must be scannable yet deep with specific, actionable information
-
-VISUAL FORMATTING REQUIREMENTS:
-🎨 Use one of the structure templates provided
-🎨 Strategic emoji placement for visual breaks
-🎨 Clear sections with proper spacing
-🎨 Key terms in CAPS for emphasis
-🎨 Bullet points for lists and breakdowns
-🎨 Numbers and metrics prominently displayed
-
-CONTENT DEPTH REQUIREMENTS:
-🔍 Include specific tools, platforms, methods (never "various tools")
-🔍 Provide exact numbers, percentages, timeframes
-🔍 Reference real examples, case studies, or people
-🔍 Explain the "why" behind recommendations
-🔍 Share counter-intuitive or insider insights
-🔍 Give step-by-step guidance where applicable
-
-${PostType !== 'single' ? `
-THREAD STRUCTURE:
+THREAD STRUCTURE (if applicable):
 🧵 Post 1: Hook with bold promise + thread preview
 🧵 Middle posts: Each contains one complete, structured insight
 🧵 Final post: Summary with key takeaways + engagement CTA
 🧵 Use thread indicators (1/N, 2/N, etc.)
 🧵 Each post should be visually distinct and scannable
-🧵 Create natural flow between posts with connectors` : ''}
-
-EXAMPLES OF VISUAL STRUCTURE:
-
-❌ BORING:
-"Machine learning is important for businesses. You should learn Python and use various tools."
-
-✅ ENGAGING:
-🤖 MACHINE LEARNING REALITY CHECK:
-
-87% of ML projects fail in production.
-
-🚨 THE PROBLEM:
-People focus on algorithms, ignore infrastructure.
-
-💡 THE SOLUTION:
-• Start with data pipelines (Apache Airflow)
-• Master MLOps basics (MLflow + Docker)
-• Learn deployment first (FastAPI + AWS)
-
-📊 RESULT: 3x higher success rate
-
-Who's building their first ML pipeline this week?
+🧵 Create natural flow between posts with connectors
 
 RESEARCH DEPTH FOCUS:
 🎯 What do experts know that beginners don't?
@@ -197,6 +146,7 @@ RESEARCH DEPTH FOCUS:
 
 Return ONLY this JSON:
 [{"content": "exact tweet content", "characterCount": actual_count}]
+
 
 Make every post so visually appealing and valuable that people bookmark it immediately.`
             }
