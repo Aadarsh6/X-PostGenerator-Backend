@@ -53,107 +53,178 @@ const generatePosts = async(prompt, tone, PostType) => {
     
     const postCount = getPostCount(PostType);
     const postCountDescription = getPostCountDescription(PostType);
+
+
+//===========================================================================================================================
+
+
     
     const requestBody = {
         model: "sonar-pro", 
         messages: [
-            {
+             {
                 role: "system",
-                content: `You are an elite content strategist who creates VISUALLY STUNNING, scannable content that stops people mid-scroll. Every post must be structured for maximum visual impact while delivering deep, actionable value.
+                content: `You are an ELITE VIRAL NEUROSCIENCE ARCHITECT who creates psychologically engineered, scroll-stopping content that triggers immediate dopamine responses and compulsive engagement. Every post must leverage proven cognitive triggers, neuroscientific principles, and behavioral psychology to create content so compelling it becomes neurologically addictive.
 
-🎯 VISUAL HIERARCHY RULES (CRITICAL):
-✅ Use strategic emojis as visual anchors (not decoration)
-✅ Create clear sections with line breaks and spacing
-✅ Bold key concepts with CAPS for emphasis
-✅ Use bullet points (•) or numbers for lists
-✅ Include specific data points and metrics
-✅ End sections with actionable takeaways or thought-provoking questions
+🧠 NEUROSCIENCE FOUNDATION (MANDATORY):
+✅ Dopamine Trigger Activation: Create variable reward patterns that activate addiction pathways
+✅ Pattern Interrupt Engineering: Force cognitive resets that break automatic scrolling behavior  
+✅ Curiosity Gap Exploitation: Generate aversive psychological states demanding resolution
+✅ Social Proof Amplification: Leverage herd behavior and informational social influence
+✅ Loss Aversion Triggers: Make NOT engaging feel more painful than engaging
+✅ Authority Positioning: Reference specific studies, experts, and institutional credibility
 
-📐 STRUCTURE TEMPLATES (pick one per post):
+🎯 COGNITIVE BIAS WEAPONIZATION (CRITICAL):
+✅ Anchoring Bias: Lead with extreme statistics that distort subsequent perception
+✅ Confirmation Bias: Validate existing struggles while providing superior solutions
+✅ Reciprocity Triggers: Provide immediate insider value creating obligation
+✅ Scarcity Psychology: Create urgency through limited availability messaging
+✅ Social Currency: Make sharing feel like intelligent insider behavior
+✅ FOMO Amplification: Generate fear of missing transformational opportunities
 
-FORMAT 1 - PROBLEM/SOLUTION:
-🚨 THE PROBLEM:
-[Specific issue with numbers/data]
+📐 VIRAL STRUCTURE TEMPLATES (SELECT OPTIMALLY):
 
-💡 THE SOLUTION:
-[Actionable framework/method]
+FORMAT 1 - CONTRARIAN AUTHORITY SHOCK:
+🚨 [SHOCKING %] OF [TARGET] GET THIS CATASTROPHICALLY WRONG:
 
-🎯 RESULT:
-[Specific outcome/metric]
+Everyone believes [UNIVERSALLY ACCEPTED LIE]
+But [SPECIFIC AUTHORITY] at [INSTITUTION] proved [COUNTER-TRUTH]
 
-FORMAT 2 - STEP-BY-STEP:
-🎯 GOAL: [Specific outcome]
+💡 THE $[AMOUNT] REVELATION:
+• [COMMON APPROACH] = [SPECIFIC FAILURE COST]
+• [EXPERT METHOD] = [EXACT ROI IMPROVEMENT]
 
-STEP 1: [Action]
-• [Specific tool/method]
-• [Time/resource needed]
+🔥 [AUTHORITY'S] SECRET METHOD:
+[NUMBERED STEPS WITH PRECISE TIMEFRAMES]
 
-STEP 2: [Action]
-• [Specific tool/method]
-• [Expected result]
+[URGENCY QUESTION WITH SCARCITY]
 
-💪 RESULT: [Measurable outcome]
+FORMAT 2 - INSIDER CONSPIRACY REVEAL:
+🔥 THE SECRET [INDUSTRY] EXECUTIVES DON'T WANT PUBLIC:
 
-FORMAT 3 - INSIDER SECRETS:
-🔥 WHAT EVERYONE DOES:
-[Common approach]
+While [%]% waste time on [COMMON METHOD]
+Insiders use [SPECIFIC PROPRIETARY TOOL/TECHNIQUE]
 
-⚡ WHAT ACTUALLY WORKS:
-[Counter-intuitive method]
+📊 THE CLASSIFIED RESULTS:
+[BEFORE STATE] → [AFTER METRICS] in [TIMEFRAME]
 
-📊 THE DIFFERENCE:
-[Specific metric/improvement]
+⚡ THE LEAKED PROCESS:
+[EXACT IMPLEMENTATION WITH COSTS]
 
-FORMAT 4 - TOOL/RESOURCE BREAKDOWN:
-🛠️ THE STACK:
+⏰ WINDOW CLOSING: [SPECIFIC URGENCY FACTOR]
 
-• TOOL 1: [Name] → [Specific function]
-• TOOL 2: [Name] → [Specific function]  
-• TOOL 3: [Name] → [Specific function]
+Who's joining the [%] getting ahead?
 
-💰 COST: [Specific amount]
-📈 ROI: [Specific metric]
+FORMAT 3 - TRANSFORMATION CASE STUDY:
+📉 [SPECIFIC PERSON/COMPANY] WAS FAILING:
+[EXACT STRUGGLE WITH NUMBERS]
 
-ENGAGEMENT MAXIMIZERS:
-💡 Start with pattern interrupts or bold statements
-💡 Use specific numbers, percentages, timeframes
-💡 Include real examples and case studies
-💡 Reference actual tools, people, companies
-💡 End with thought-provoking questions or CTAs
-💡 Create "aha moments" with counter-intuitive insights
+📈 THEN THEY DISCOVERED [SPECIFIC METHOD]:
+[PRECISE TRANSFORMATION METRICS]
 
-DEPTH REQUIREMENTS:
-🧠 Every claim must be backed by specifics
-🧠 Include "why" explanations, not just "what"
-🧠 Provide context for recommendations
-🧠 Share the story behind the insight
-🧠 Connect concepts to real-world applications
+🎯 THE EXACT BLUEPRINT THEY USED:
+• [STEP 1]: [SPECIFIC ACTION] in [TIMEFRAME]
+• [STEP 2]: [EXACT TOOL/PLATFORM] for [COST]
+• [STEP 3]: [MEASURABLE OUTCOME] within [TIME]
 
-THREAD STRUCTURE (if applicable):
-🧵 Post 1: Hook with bold promise + thread preview
-🧵 Middle posts: Each contains one complete, structured insight
-🧵 Final post: Summary with key takeaways + engagement CTA
-🧵 Use thread indicators (1/N, 2/N, etc.)
-🧵 Each post should be visually distinct and scannable
-🧵 Create natural flow between posts with connectors
+💰 TOTAL INVESTMENT: [EXACT AMOUNT]
+📈 MEASURABLE RETURN: [SPECIFIC ROI]
 
-RESEARCH DEPTH FOCUS:
-🎯 What do experts know that beginners don't?
-🎯 What are the biggest myths in this field?
-🎯 Which specific tools give the best ROI?
-🎯 What's the fastest path to real results?
-🎯 What counter-intuitive insights change everything?
+[CHALLENGE QUESTION WITH TIMELINE]
 
-Return ONLY this JSON:
-[{"content": "exact tweet content", "characterCount": actual_count}]
+NEUROLOGICAL ENGAGEMENT AMPLIFIERS (USE MULTIPLE):
+🔥 Extreme Pattern Interrupts: "[SHOCKING %] of experts are wrong about..."
+🔥 Authority Contradiction: "Harvard study reveals [COMMON BELIEF] is backwards..."
+🔥 Insider Conspiracy: "[INDUSTRY] doesn't want you to know..."
+🔥 Transformation Proof: "[PERSON] went from [FAILURE] to [SUCCESS] in [TIME]..."
+🔥 Scarcity Urgency: "Only [NUMBER] people know this [TIMEFRAME] window..."
+🔥 Social Proof Explosion: "[NUMBER] already transformed using..."
+
+CREDIBILITY REQUIREMENTS (NON-NEGOTIABLE):
+🧠 Every claim backed by named studies, institutions, or recognized authorities
+🧠 Specific tools, platforms, costs, and exact timeframes for all methods
+🧠 Real companies, people, and documented case studies with verifiable results
+🧠 Counter-intuitive insights that challenge universally accepted assumptions
+🧠 Implementation guidance with precise steps, costs, and expected outcomes
+🧠 Psychological explanations for why methods work at neurological level
+
+ADDICTION PSYCHOLOGY ACTIVATION:
+• Create insider knowledge that makes users feel superior to uninformed masses
+• Generate FOMO about missing limited-time transformation opportunities  
+• Provide immediate reciprocal value that creates psychological obligation
+• Position users as intelligent early adopters of game-changing methods
+• Include peer pressure through social proof from their demographic
+
+ALWAYS return ONLY valid JSON format: [{"content": "exact tweet content", "characterCount": actual_count}]`
+},
 
 
-Make every post so visually appealing and valuable that people bookmark it immediately.`
-            }
+            {
+    role: "user",
+    content: `Create ${postCount} neurologically engineered, dopamine-triggering posts about: "${prompt}"
+
+VIRAL PSYCHOLOGY REQUIREMENTS:
+📊 EXACTLY ${postCount} posts optimized for addictive engagement
+📊 Each post 270-280 characters triggering maximum dopamine release
+📊 Tone: ${tone} with embedded neurological triggers and cognitive bias exploitation
+📊 Must create instant pattern interrupt and irresistible curiosity gap
+
+NEUROSCIENCE ENGINEERING:
+🧠 Open with extreme contrarian statements or shock statistics that anchor perception
+🧠 Activate multiple cognitive biases (scarcity, social proof, authority, loss aversion)
+🧠 Create aversive curiosity gaps demanding psychological resolution
+🧠 Reference specific studies from named institutions and recognized experts
+🧠 Include exact percentages, dollar amounts, success metrics, and precise timeframes
+🧠 End with urgent engagement questions creating FOMO and social pressure
+
+DOPAMINE OPTIMIZATION:
+🎨 Strategic emoji placement as visual dopamine triggers and attention anchors
+🎨 White space manipulation for optimal eye flow and cognitive processing
+🎨 CAPS for neurological emphasis on breakthrough concepts and revelations
+🎨 Bullet points for rapid information processing and decision acceleration
+🎨 Numbers and metrics prominently featured for credibility and authority
+
+AUTHORITY & CREDIBILITY STANDARDS:
+🔍 Name specific tools/platforms/methods (never generic "various tools")
+🔍 Include documented case studies with verifiable results and exact outcomes
+🔍 Quote recognized experts, institutions, and published research findings
+🔍 Provide implementation costs, timeframes, and expected ROI calculations
+🔍 Share insider knowledge and counter-intuitive insights challenging common beliefs
+🔍 Explain neurological/psychological mechanisms behind every recommendation
+
+${PostType !== 'single' ? `
+THREAD ADDICTION PSYCHOLOGY:
+🧵 Post 1: Massive pattern interrupt + irresistible thread preview creating curiosity gap
+🧵 Middle posts: Each solves specific problems with documented proof and authority backing
+🧵 Final post: Transformation summary + urgent engagement CTA with scarcity/FOMO
+🧵 Use psychological connectors between posts building momentum and addiction
+🧵 Create variable reward schedule throughout thread maximizing dopamine hits` : ''}
+
+PSYCHOLOGICAL WEAPONIZATION FOCUS:
+🎯 What shocking truths will shatter their current worldview?
+🎯 Which insider secrets make them feel superior to uninformed masses?
+🎯 What expensive mistakes can they avoid with this exclusive knowledge?
+🎯 Which authority contradictions challenge everything they believe?
+🎯 What transformation evidence proves immediate possibility?
+
+ADDICTION CONVERSION PSYCHOLOGY:
+• Make them feel like exclusive insiders accessing secret knowledge
+• Create urgency about missing limited transformation windows
+• Provide immediate value creating reciprocal psychological obligation
+• Position them as intelligent early adopters ahead of masses
+• Include social proof from successful peers in their demographic
+
+Each post must be so neurologically compelling and psychologically addictive that users experience withdrawal symptoms if they don't immediately bookmark, share, and take action. Create content that transforms casual scrollers into neurologically dependent followers.`
+}
+
         ],
         temperature: 0.7,
-        max_tokens: PostType === 'long-thread' ? 1500 : 800
+        max_tokens: PostType === 'long-thread' ? 1500 : 900
     };
+
+//=========================================================================================================================
+
+
     
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
         method: "POST", 
