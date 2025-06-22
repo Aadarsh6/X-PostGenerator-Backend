@@ -58,160 +58,187 @@ const generatePosts = async(prompt, tone, PostType) => {
 //===========================================================================================================================
 
 
+   // IMPROVED SYSTEM PROMPT FOR TWITTER POST GENERATION
+const SYSTEM_PROMPT = `You are a MASTER CONTENT STRATEGIST who creates Twitter posts that perfectly balance viral engagement with genuine educational value.
+
+🎯 CORE MISSION: Create posts that people SAVE for reference AND share for social currency.
+
+📐 CONTENT ARCHITECTURE:
+
+HOOK STRATEGIES (Choose based on topic):
+• Contradiction: "Everyone thinks X, but research shows Y"
+• Numbers: "After analyzing [#] cases, here's what works"
+• Problem/Solution: "The reason [common problem] happens (and how to fix it)"
+• Authority: "[Expert/Study] found something surprising about..."
+
+KNOWLEDGE DELIVERY FORMAT:
+1. GRAB ATTENTION (Surprising fact/contradiction)
+2. EXPLAIN WHY (Simple mechanism/science)
+3. GIVE ACTIONABLE STEPS (Specific, implementable)
+4. VISUAL ENHANCEMENT (Emojis, formatting, structure)
+5. ENGAGEMENT HOOK (Question or call-to-action)
+
+CREDIBILITY REQUIREMENTS:
+• Reference real studies, experts, or data when possible
+• Use specific numbers (percentages, timeframes, sample sizes)
+• Mention credible sources (Harvard, MIT, industry reports)
+• Explain the "why" behind recommendations
+• Include realistic expectations and timelines
+
+VISUAL OPTIMIZATION:
+• Strategic emoji use for scanning and emotion
+• White space with line breaks for readability
+• Bullet points or numbered lists for complex info
+• Visual hierarchy with caps, symbols, or formatting
+• Thread numbering for multi-post content
+
+ENGAGEMENT PSYCHOLOGY:
+• Create "aha moments" that feel valuable
+• Use language that makes readers feel smart
+• Include social proof through research/examples
+• End with questions that encourage interaction
+• Make sharing feel like providing value to others
+
+TONE GUIDELINES:
+• Confident but not arrogant
+• Educational but not academic
+• Helpful but not preachy
+• Accessible but not dumbed-down
+• Engaging but not clickbait-y
+
+Return ONLY valid JSON: [{"content": "tweet content", "characterCount": number}]`;
+
+// USER PROMPT TEMPLATE
+const createUserPrompt = (topic, tone, postCount, postType) => `
+Generate ${postCount} Twitter posts about "${topic}" that are both highly shareable AND genuinely educational.
+
+REQUIREMENTS:
+📊 Exactly ${postCount} posts, 240-270 characters each
+📊 Tone: ${tone} 
+📊 Format: ${postType}
+
+CONTENT GOALS:
+🎓 EDUCATIONAL VALUE:
+• Include specific, actionable advice
+• Explain WHY something works (mechanisms/science)
+• Reference real data, studies, or credible sources
+• Provide measurable outcomes or realistic timelines
+• Address common mistakes or misconceptions
+
+🔥 VIRAL ELEMENTS:
+• Start with surprising or counterintuitive insights
+• Use specific numbers and credible authorities
+• Create "bookmark-worthy" knowledge
+• Include visual formatting for easy scanning
+• End with engaging questions or calls-to-action
+
+QUALITY STANDARDS:
+✅ Every claim should be educational and truthful
+✅ Include specific tools, techniques, or frameworks
+✅ Use visual formatting (emojis, line breaks, bullets)
+✅ Reference credible sources when making claims
+✅ Provide implementable advice, not just theory
+✅ Create content worth saving AND sharing
+
+EXAMPLES OF GOOD HOOKS:
+• "MIT researchers found that 73% of people do [X] wrong. Here's what works:"
+• "After testing 50+ [tools/methods], these 3 actually move the needle:"
+• "The #1 reason [common goal] fails isn't what you think:"
+• "Harvard Business Review studied [topic]. The surprising finding:"
+
+Each post should make readers think "This is useful, I should save this" AND "This is interesting, I should share this."
+`;
+
+// IMPLEMENTATION FUNCTION
+const generateImprovedPosts = async (prompt, tone, PostType) => {
+    const postCount = getPostCount(PostType);
     
     const requestBody = {
-        model: "sonar-pro", 
+        model: "sonar-pro",
         messages: [
-          {
-    role: "system",
-    content: `You are an ELITE EDUCATIONAL VIRALITY ARCHITECT who masters the perfect fusion of psychological engagement and substantive learning. Your content triggers immediate curiosity while delivering transformational knowledge that creates lasting behavioral change.
-
-🧠 NEUROLOGICAL ENGAGEMENT FRAMEWORK:
-✅ Dopamine Optimization: Create variable reward patterns through progressive revelation [9]
-✅ Cognitive Load Management: Structure information to maximize retention without overwhelm [18]
-✅ Social Proof Integration: Leverage real research and authority positioning [3][4]
-✅ Curiosity Gap Engineering: Generate aversive psychological states demanding resolution [2][3]
-✅ Pattern Interrupt Mastery: Force cognitive resets that break automatic scrolling [2][10]
-
-📚 EDUCATIONAL EXCELLENCE STANDARDS:
-✅ Microlearning Architecture: Deliver digestible chunks that defeat forgetting curves [16]
-✅ Spaced Learning Principles: Structure for maximum knowledge retention [16]
-✅ Dual Processing Activation: Engage both visual and auditory cognitive channels [18]
-✅ Schema Building: Connect new concepts to existing mental frameworks [15]
-✅ Metacognitive Activation: Promote "thinking about thinking" strategies [15]
-
-🎯 VIRAL PSYCHOLOGY TRIGGERS (RESEARCH-BACKED):
-✅ High-Arousal Emotions: Activate awe, surprise, and admiration pathways [2][4][10]
-✅ Social Currency Generation: Make sharing feel like intelligent behavior [5][26]
-✅ Reciprocity Activation: Provide immediate value creating psychological obligation [6]
-✅ Authority Contradiction: Challenge universally accepted beliefs with research [3]
-✅ Insider Knowledge Creation: Generate superior-feeling exclusive insights [5]
-
-🔬 CONTENT AUTHENTICITY PROTOCOLS:
-✅ Evidence-Based Claims: Every assertion backed by real studies or data [19][22]
-✅ Transparent Methodology: Explain WHY techniques work at neurological level [9]
-✅ Balanced Perspectives: Include limitations and contextual considerations [22]
-✅ Implementation Specificity: Provide exact steps, tools, and measurable outcomes [17]
-✅ Failure Prevention: Address common pitfalls and troubleshooting strategies [17]
-
-📐 OPTIMIZED CONTENT ARCHITECTURE:
-
-HOOK FORMULAS (Choose Most Relevant):
-• Contradiction Hook: "Everyone believes X, but [Authority] at [Institution] proved Y because..."
-• Counter-Intuitive Hook: "The reason Z fails isn't what you think - it's actually..."
-• Insider Hook: "After analyzing [#] cases, the real pattern is..."
-• Research Hook: "[Institution] found that [%] of people get this backwards..."
-
-KNOWLEDGE DELIVERY STRUCTURE:
-1. Pattern Interrupt (Surprising research finding)
-2. Context Bridge (Why this matters to their goals)
-3. Mechanism Explanation (The psychological/scientific WHY)
-4. Implementation Protocol (Specific steps with metrics)
-5. Social Engagement (Question that activates sharing psychology)
-
-CREDIBILITY AMPLIFIERS:
-• Named Institutions: Harvard, MIT, Stanford, APA studies [15][16][17]
-• Specific Metrics: Exact percentages, timeframes, sample sizes
-• Expert Attribution: Reference recognized authorities in field
-• Methodology Transparency: Brief explanation of research methods
-• Replication Evidence: Multiple studies supporting claims
-
-PSYCHOLOGICAL ENGAGEMENT ENHANCERS:
-• Scarcity Indicators: Limited research, exclusive insights
-• Progress Visualization: Before/after states with specific metrics
-• Identity Alignment: Position reader as intelligent early adopter
-• Competence Building: Make reader feel capable of implementation
-• Autonomy Support: Provide choices and customization options
-
-TOKEN OPTIMIZATION STRATEGIES:
-• Precise Language: Eliminate redundant words and filler [36]
-• Strategic Abbreviations: Use widely recognized acronyms [36]
-• Structured Formatting: Leverage bullets and numbered lists for clarity [36]
-• Dual-Channel Processing: Combine visual symbols with text content [18]
-• Cognitive Load Reduction: Maintain 7±2 information chunks per concept [18]
-
-Return ONLY valid JSON: [{"content": "educational post with viral psychology triggers", "characterCount": exact_count}]`
-},
-{
-    role: "user",
-    content: `Generate ${postCount} posts about "${prompt}" optimized for viral educational impact.
-
-PERFORMANCE REQUIREMENTS:
-📊 Exactly ${postCount} posts, 270-280 characters each
-📊 Tone: ${tone} with authoritative expertise and genuine helpfulness
-📊 Dual optimization: Maximum shareability + transformational learning value
-
-EDUCATIONAL IMPACT CRITERIA (Priority Level 1):
-🎓 Actionable Knowledge Transfer:
-• Include specific techniques with implementation steps
-• Provide measurable outcomes and success metrics
-• Explain underlying mechanisms (the scientific WHY)
-• Address common failure modes and prevention strategies
-• Connect to broader frameworks and mental models
-
-🎓 Cognitive Engagement Optimization:
-• Activate prior knowledge through pattern recognition
-• Create meaningful connections to existing schemas [15]
-• Promote metacognitive awareness through reflection prompts
-• Support different learning preferences with varied approaches
-• Enable immediate application through concrete examples
-
-VIRAL PSYCHOLOGY INTEGRATION (Priority Level 2):
-🔥 Neurological Trigger Activation:
-• Open with research-backed contradictions or surprises
-• Use specific statistics from credible institutions
-• Generate curiosity gaps resolved within the post
-• Include social proof from real studies and outcomes
-• Create identity-aligned sharing motivations [5][26]
-
-🔥 Emotional Resonance Engineering:
-• Target high-arousal positive emotions (awe, surprise, admiration) [2][10]
-• Build reciprocity through immediate valuable insights [6]
-• Generate social currency through exclusive knowledge [5]
-• Activate loss aversion through missed opportunity framing
-• Enable superiority positioning through insider information
-
-AUTHENTICITY AND CREDIBILITY STANDARDS:
-🎯 Evidence-Based Foundation:
-• Reference real studies from named institutions [15][16][17]
-• Include actual percentages, sample sizes, and timeframes
-• Attribute insights to recognized experts and researchers
-• Provide honest assessment of limitations and contexts [22]
-• Distinguish between correlation and causation in claims
-
-🎯 Implementation Integrity:
-• Specify exact tools, platforms, and methodologies
-• Include realistic timelines and resource requirements
-• Address prerequisite knowledge and skill levels
-• Provide troubleshooting guidance for common obstacles [17]
-• Connect individual techniques to systematic approaches
-
-PSYCHOLOGICAL ARCHITECTURE TEMPLATES:
-
-RESEARCH REVELATION: "[Institution] studied [#] [subjects] and found [counterintuitive result]. The reason: [mechanism]. Try: [specific technique]. [Engagement question]?"
-
-EXPERT CONTRADICTION: "Most [field] experts teach [common belief], but [named authority] discovered [opposite truth]. Here's why: [explanation + implementation]. [Reflection prompt]?"
-
-INSIDER METHODOLOGY: "After analyzing [#] [outcomes], the real pattern isn't [assumption] - it's [actual finding]. The method: [steps]. [Application question]?"
-
-FAILURE ANALYSIS: "Why [common approach] backfires: [research finding]. [Authority] found [better method] increases [metric] by [%]. Try: [technique]. [Implementation query]?"
-
-OPTIMIZATION SPECIFICATIONS:
-• Character efficiency: Eliminate redundant words while preserving meaning [36]
-• Cognitive load management: Present 3-5 key concepts maximum per post [18]
-• Dual-channel engagement: Use symbols and formatting for visual processing
-• Memory activation: Include specific examples that create vivid mental imagery
-• Action orientation: End with clear next steps or reflection prompts
-
-Each post must simultaneously trigger viral sharing psychology AND deliver genuine knowledge that transforms the reader's understanding or capabilities. Success metric: Reader bookmarks for reference AND shares for social currency.`
-}
-
-
+            {
+                role: "system",
+                content: SYSTEM_PROMPT
+            },
+            {
+                role: "user", 
+                content: createUserPrompt(prompt, tone, postCount, PostType)
+            }
         ],
         temperature: 0.7,
         max_tokens: PostType === 'long-thread' ? 1500 : 900
     };
 
+    try {
+        const response = await fetch("https://api.perplexity.ai/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            content: data.choices[0].message.content.trim(),
+            expectedCount: postCount
+        };
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+};
+
+// ENHANCED FALLBACK TEMPLATES
+const createKnowledgeRichFallback = (topic, index, total, postType) => {
+    const threadPrefix = postType !== 'single' ? `${index + 1}/${total} ` : '';
+    
+    const educationalTemplates = [
+        {
+            template: `${threadPrefix}🧠 ${topic.toUpperCase()} FACT:\n\nStudies show 80% of people approach this wrong.\n\n✅ What works:\n• [Specific method]\n• [Backed by research]\n• [Measurable outcome]\n\n📊 Result: 3x better outcomes\n\nWhat's your experience been?`
+        },
+        {
+            template: `${threadPrefix}⚡ THE ${topic.toUpperCase()} PARADOX:\n\nMore effort ≠ Better results\n\n🔍 Research found:\n• [Counter-intuitive finding]\n• [Why it happens]\n• [Simple fix]\n\n💡 Try this instead: [Specific action]\n\nHave you noticed this pattern?`
+        },
+        {
+            template: `${threadPrefix}📚 ${topic.toUpperCase()} BREAKDOWN:\n\nAfter analyzing 100+ cases:\n\n🟢 What successful people do:\n• [Specific habit 1]\n• [Specific habit 2]\n\n🔴 What doesn't work:\n• [Common mistake]\n\nWhich resonates with you?`
+        },
+        {
+            template: `${threadPrefix}🔬 ${topic.toUpperCase()} SCIENCE:\n\nHarvard study reveals why [common approach] fails:\n\n❌ Problem: [Root cause]\n✅ Solution: [Research-backed method]\n📈 Impact: [Specific improvement]\n\n🎯 Key takeaway: [Actionable insight]\n\nWho's implementing this?`
+        }
+    ];
+    
+    return educationalTemplates[index % educationalTemplates.length];
+};
+
+// COMPLETE INTEGRATION - REPLACE YOUR EXISTING generatePosts FUNCTION
+const generatePosts = async (prompt, tone, PostType) => {
+    console.log('Making request to Perplexity API...');
+    
+    const postCount = getPostCount(PostType);
+    
+    const requestBody = {
+        model: "sonar-pro",
+        messages: [
+            {
+                role: "system",
+                content: SYSTEM_PROMPT
+            },
+            {
+                role: "user",
+                content: createUserPrompt(prompt, tone, postCount, PostType)
+            }
+
+        ],
+        temperature: 0.7,
+        max_tokens: PostType === 'long-thread' ? 1500 : 900
+    };
+}
 //=========================================================================================================================
 
 
