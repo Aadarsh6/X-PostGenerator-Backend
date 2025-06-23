@@ -178,6 +178,7 @@ Focus on TRUTH and VALUE over shocking claims.`;
 };
 
 // Main post generation function
+// Main post generation function - FIXED VERSION
 const generatePosts = async (prompt, tone, PostType) => {
     console.log('Making request to Perplexity API...');
     
@@ -199,9 +200,7 @@ const generatePosts = async (prompt, tone, PostType) => {
         max_tokens: PostType === 'long-thread' ? 1500 : 900
     };
     
-    // Rest of your API call logic...
-};
-
+    // FIX: Move the API call logic INSIDE the function
     try {
         const response = await fetch("https://api.perplexity.ai/chat/completions", {
             method: "POST",
@@ -227,7 +226,8 @@ const generatePosts = async (prompt, tone, PostType) => {
         console.error('API call failed:', error);
         throw error;
     }
-;
+};
+
 
 // Enhanced fallback system with visual templates
 const createVisuallyAppealingFallback = (prompt, index, total, PostType) => {
