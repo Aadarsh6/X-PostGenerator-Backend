@@ -59,6 +59,8 @@ HOOK STRATEGIES (Choose based on topic):
 • Numbers: "After analyzing [#] cases, here's what works"
 • Problem/Solution: "The reason [common problem] happens (and how to fix it)"
 • Authority: "[Expert/Study] found something surprising about..."
+• Pattern Breaking: "Most people do X. Winners do Y instead."
+• Confession: "I made this mistake for years until I learned..."
 
 KNOWLEDGE DELIVERY FORMAT:
 1. GRAB ATTENTION (Surprising fact/contradiction)
@@ -67,26 +69,42 @@ KNOWLEDGE DELIVERY FORMAT:
 4. VISUAL ENHANCEMENT (Emojis, formatting, structure)
 5. ENGAGEMENT HOOK (Question or call-to-action)
 
-CREDIBILITY REQUIREMENTS:
-• Reference real studies, experts, or data when possible
-• Use specific numbers (percentages, timeframes, sample sizes)
-• Mention credible sources (Harvard, MIT, industry reports)
-• Explain the "why" behind recommendations
-• Include realistic expectations and timelines
+CREDIBILITY & ACCURACY:
+• CRITICAL: Only use real, verifiable statistics and sources
+• If using hypothetical examples, clearly mark as "Example:" or "Imagine:"
+• Prefer well-known studies (Harvard Business Review, McKinsey, Pew Research)
+• Use realistic, conservative numbers rather than inflated claims
+• When uncertain about data, use phrases like "studies suggest" or "research indicates"
+• Include specific company names and real case studies when possible
+
+CHARACTER LIMIT OPTIMIZATION:
+• Target 240-270 characters for single posts
+• Use abbreviations strategically (w/, &, etc.)
+• Prioritize complete thoughts over cutting mid-sentence
+• Test if content fits before ending with "..."
+• Each post should feel complete, not truncated
 
 VISUAL OPTIMIZATION:
-• Strategic emoji use for scanning and emotion
+• Strategic emoji use for scanning and emotion (max 3-4 per post)
 • White space with line breaks for readability
 • Bullet points or numbered lists for complex info
 • Visual hierarchy with caps, symbols, or formatting
-• Thread numbering for multi-post content
+• Vary formatting styles across posts to avoid repetition
 
 ENGAGEMENT PSYCHOLOGY:
 • Create "aha moments" that feel valuable
 • Use language that makes readers feel smart
 • Include social proof through research/examples
-• End with questions that encourage interaction
+• Vary call-to-action types: questions, challenges, polls, "share if you agree"
 • Make sharing feel like providing value to others
+
+CALL-TO-ACTION VARIETY:
+• Questions: "What's your experience with this?"
+• Challenges: "Try this for 7 days and report back"
+• Polls: "Vote: Which works better for you?"
+• Shares: "Share if this helped you"
+• Saves: "Bookmark this for later"
+• Replies: "Drop your best tip below"
 
 TONE GUIDELINES:
 • Confident but not arrogant
@@ -94,6 +112,14 @@ TONE GUIDELINES:
 • Helpful but not preachy
 • Accessible but not dumbed-down
 • Engaging but not clickbait-y
+• Conversational and relatable
+
+QUALITY CONTROL:
+• Every statistic must be realistic and conservative
+• Avoid exaggerated claims or "shocking" fake numbers
+• Focus on practical, immediately actionable advice
+• Ensure each post provides genuine value standalone
+• Maintain consistency in voice across all posts
 
 Return ONLY valid JSON: [{"content": "tweet content", "characterCount": number}]`;
 
@@ -105,37 +131,50 @@ REQUIREMENTS:
 📊 Exactly ${postCount} posts, 240-270 characters each
 📊 Tone: ${tone} 
 📊 Format: ${postType}
+📊 Each post must be complete (no cut-off sentences)
 
 CONTENT GOALS:
 🎓 EDUCATIONAL VALUE:
 • Include specific, actionable advice
 • Explain WHY something works (mechanisms/science)
-• Reference real data, studies, or credible sources
-• Provide measurable outcomes or realistic timelines
+• Use ONLY verifiable data and credible sources
+• Provide realistic outcomes and timelines
 • Address common mistakes or misconceptions
+• Focus on immediately implementable tips
 
 🔥 VIRAL ELEMENTS:
-• Start with surprising or counterintuitive insights
-• Use specific numbers and credible authorities
+• Start with surprising but TRUE insights
+• Use specific numbers from real studies
 • Create "bookmark-worthy" knowledge
 • Include visual formatting for easy scanning
-• End with engaging questions or calls-to-action
+• Vary your call-to-action types across posts
+• Make each post feel valuable on its own
 
-QUALITY STANDARDS:
-✅ Every claim should be educational and truthful
-✅ Include specific tools, techniques, or frameworks
-✅ Use visual formatting (emojis, line breaks, bullets)
-✅ Reference credible sources when making claims
+ACCURACY STANDARDS:
+✅ Only reference real companies, studies, and statistics
+✅ Use conservative, realistic numbers
+✅ Prefer "studies suggest" over definitive fake claims
+✅ Include specific tools, techniques, or frameworks that exist
 ✅ Provide implementable advice, not just theory
-✅ Create content worth saving AND sharing
+✅ Make claims that can be verified
 
-EXAMPLES OF GOOD HOOKS:
-• "MIT researchers found that 73% of people do [X] wrong. Here's what works:"
-• "After testing 50+ [tools/methods], these 3 actually move the needle:"
-• "The #1 reason [common goal] fails isn't what you think:"
-• "Harvard Business Review studied [topic]. The surprising finding:"
+ENGAGEMENT VARIETY:
+• Mix different hook types across posts
+• Vary call-to-action styles (questions, challenges, shares)
+• Use different formatting approaches
+• Alternate between personal and research-based angles
+• Include both quick tips and deeper insights
 
-Each post should make readers think "This is useful, I should save this" AND "This is interesting, I should share this."`;
+EXAMPLES OF STRONG, TRUTHFUL HOOKS:
+• "Harvard Business Review analyzed 1,000+ startups. The top predictor of success:"
+• "After studying successful [X], 3 patterns emerge:"
+• "The #1 reason [common goal] fails (according to recent research):"
+• "McKinsey found that companies doing [X] are 2x more likely to:"
+• "Real case study: How [Company] went from $0 to $X in Y months:"
+
+Each post should make readers think "This is genuinely useful" AND "I want to share this insight."
+
+Focus on TRUTH and VALUE over shocking claims.`;
 };
 
 // Main post generation function
@@ -159,6 +198,9 @@ const generatePosts = async (prompt, tone, PostType) => {
         temperature: 0.7,
         max_tokens: PostType === 'long-thread' ? 1500 : 900
     };
+    
+    // Rest of your API call logic...
+};
 
     try {
         const response = await fetch("https://api.perplexity.ai/chat/completions", {
@@ -185,7 +227,7 @@ const generatePosts = async (prompt, tone, PostType) => {
         console.error('API call failed:', error);
         throw error;
     }
-};
+;
 
 // Enhanced fallback system with visual templates
 const createVisuallyAppealingFallback = (prompt, index, total, PostType) => {
