@@ -47,18 +47,7 @@ const getPostCountDescription = (PostType) => {
     }
 };
 
-// Enhanced universal content generation with visual appeal
-const generatePosts = async(prompt, tone, PostType) => {
-    console.log('Making request to Perplexity API...');
-    
-    const postCount = getPostCount(PostType);
-    const postCountDescription = getPostCountDescription(PostType);
-
-
-//===========================================================================================================================
-
-
-   // IMPROVED SYSTEM PROMPT FOR TWITTER POST GENERATION
+// System prompt for the AI
 const SYSTEM_PROMPT = `You are a MASTER CONTENT STRATEGIST who creates Twitter posts that perfectly balance viral engagement with genuine educational value.
 
 🎯 CORE MISSION: Create posts that people SAVE for reference AND share for social currency.
@@ -108,9 +97,9 @@ TONE GUIDELINES:
 
 Return ONLY valid JSON: [{"content": "tweet content", "characterCount": number}]`;
 
-// USER PROMPT TEMPLATE
-const createUserPrompt = (topic, tone, postCount, postType) => `
-Generate ${postCount} Twitter posts about "${topic}" that are both highly shareable AND genuinely educational.
+// Create user prompt function
+const createUserPrompt = (topic, tone, postCount, postType) => {
+    return `Generate ${postCount} Twitter posts about "${topic}" that are both highly shareable AND genuinely educational.
 
 REQUIREMENTS:
 📊 Exactly ${postCount} posts, 240-270 characters each
@@ -146,11 +135,13 @@ EXAMPLES OF GOOD HOOKS:
 • "The #1 reason [common goal] fails isn't what you think:"
 • "Harvard Business Review studied [topic]. The surprising finding:"
 
-Each post should make readers think "This is useful, I should save this" AND "This is interesting, I should share this."
-`;
+Each post should make readers think "This is useful, I should save this" AND "This is interesting, I should share this."`;
+};
 
-// IMPLEMENTATION FUNCTION
-const generateImprovedPosts = async (prompt, tone, PostType) => {
+// Main post generation function
+const generatePosts = async (prompt, tone, PostType) => {
+    console.log('Making request to Perplexity API...');
+    
     const postCount = getPostCount(PostType);
     
     const requestBody = {
@@ -161,7 +152,7 @@ const generateImprovedPosts = async (prompt, tone, PostType) => {
                 content: SYSTEM_PROMPT
             },
             {
-                role: "user", 
+                role: "user",
                 content: createUserPrompt(prompt, tone, postCount, PostType)
             }
         ],
@@ -180,7 +171,9 @@ const generateImprovedPosts = async (prompt, tone, PostType) => {
         });
 
         if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorData = await response.text();
+            console.error('Perplexity API Error Response:', errorData);
+            throw new Error(`Perplexity API error: ${response.status} ${response.statusText} - ${errorData}`);
         }
 
         const data = await response.json();
@@ -192,77 +185,6 @@ const generateImprovedPosts = async (prompt, tone, PostType) => {
         console.error('API call failed:', error);
         throw error;
     }
-};
-
-// ENHANCED FALLBACK TEMPLATES
-const createKnowledgeRichFallback = (topic, index, total, postType) => {
-    const threadPrefix = postType !== 'single' ? `${index + 1}/${total} ` : '';
-    
-    const educationalTemplates = [
-        {
-            template: `${threadPrefix}🧠 ${topic.toUpperCase()} FACT:\n\nStudies show 80% of people approach this wrong.\n\n✅ What works:\n• [Specific method]\n• [Backed by research]\n• [Measurable outcome]\n\n📊 Result: 3x better outcomes\n\nWhat's your experience been?`
-        },
-        {
-            template: `${threadPrefix}⚡ THE ${topic.toUpperCase()} PARADOX:\n\nMore effort ≠ Better results\n\n🔍 Research found:\n• [Counter-intuitive finding]\n• [Why it happens]\n• [Simple fix]\n\n💡 Try this instead: [Specific action]\n\nHave you noticed this pattern?`
-        },
-        {
-            template: `${threadPrefix}📚 ${topic.toUpperCase()} BREAKDOWN:\n\nAfter analyzing 100+ cases:\n\n🟢 What successful people do:\n• [Specific habit 1]\n• [Specific habit 2]\n\n🔴 What doesn't work:\n• [Common mistake]\n\nWhich resonates with you?`
-        },
-        {
-            template: `${threadPrefix}🔬 ${topic.toUpperCase()} SCIENCE:\n\nHarvard study reveals why [common approach] fails:\n\n❌ Problem: [Root cause]\n✅ Solution: [Research-backed method]\n📈 Impact: [Specific improvement]\n\n🎯 Key takeaway: [Actionable insight]\n\nWho's implementing this?`
-        }
-    ];
-    
-    return educationalTemplates[index % educationalTemplates.length];
-};
-
-// COMPLETE INTEGRATION - REPLACE YOUR EXISTING generatePosts FUNCTION
-const generatePosts = async (prompt, tone, PostType) => {
-    console.log('Making request to Perplexity API...');
-    
-    const postCount = getPostCount(PostType);
-    
-    const requestBody = {
-        model: "sonar-pro",
-        messages: [
-            {
-                role: "system",
-                content: SYSTEM_PROMPT
-            },
-            {
-                role: "user",
-                content: createUserPrompt(prompt, tone, postCount, PostType)
-            }
-
-        ],
-        temperature: 0.7,
-        max_tokens: PostType === 'long-thread' ? 1500 : 900
-    };
-}
-//=========================================================================================================================
-
-
-    
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
-        method: "POST", 
-        headers:{
-            "Authorization": `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestBody)
-    })
-
-    if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Perplexity API Error Response:', errorData);
-        throw new Error(`Perplexity API error: ${response.status} ${response.statusText} - ${errorData}`);
-    }
-
-    const data = await response.json();
-    return {
-        content: data.choices[0].message.content.trim(),
-        expectedCount: postCount
-    };
 };
 
 // Enhanced fallback system with visual templates
@@ -507,7 +429,7 @@ app.listen(PORT, () => {
     console.log(`✨ Visual content system active - all topics now scannable & engaging`);
 });
 
-// Frontend service remains the same
+// Frontend service functions
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
     ? 'https://your-production-url.com' 
     : 'http://localhost:3001';
