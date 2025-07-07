@@ -5,7 +5,6 @@ import 'dotenv/config';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-
 // CORS configuration
 app.use(cors({
   origin: [
@@ -81,14 +80,18 @@ const getPostCount = (PostType) => {
   return counts[PostType] || 1;
 };
 
+// FIXED: Updated prompt creation with correct numbering
 const createOptimizedPrompt = (prompt, tone, postCount, PostType) => {
+  // Calculate correct numbering values
+  const totalNumberedPosts = PostType !== 'single' ? postCount - 1 : 0;
+  
   const toneInstructions = {
-    'professional': 'Use a professional, authoritative tone that builds trust and credibility.',
-    'casual': 'Use a conversational, friendly tone that feels approachable and relatable.',
-    'witty': 'Use clever wordplay and humor while maintaining valuable insights.',
-    'inspirational': 'Use motivational language that encourages action and positive thinking.',
-    'educational': 'Use clear, instructional language that teaches complex concepts simply.',
-    'contrarian': 'Challenge conventional wisdom with thought-provoking alternative perspectives.'
+    'professional': 'Use an authoritative, expert tone with industry-specific insights, data-driven points, and executive-level perspective. Sound like a seasoned professional sharing hard-won expertise.',
+    'humorous': 'Use sharp humor, clever observations, and unexpected angles. Make people smile while delivering genuine insights. Balance entertainment with education through wordplay and irony.',
+    'educational': 'Break down complex topics into simple, digestible concepts. Use analogies, step-by-step explanations, and real-world examples. Teach genuinely useful knowledge that people can immediately understand and apply.',
+    'controversial': 'Challenge popular beliefs with provocative, well-reasoned alternative viewpoints. Present uncomfortable truths and counterintuitive insights that make people question their assumptions.',
+    'casual': 'Use a friendly, conversational tone like talking to a close friend. Include relatable examples, personal observations, and everyday language that makes complex topics feel accessible.',
+    'inspirational': 'Use powerful, motivational language that ignites action. Include transformative mindset shifts, empowering beliefs, and calls to greatness. Make people feel capable of achieving more.',
   };
 
   const typeInstructions = {
@@ -102,7 +105,7 @@ const createOptimizedPrompt = (prompt, tone, postCount, PostType) => {
 TONE: ${toneInstructions[tone] || toneInstructions.professional}
 FORMAT: ${typeInstructions[PostType]}
 
-SPECIFIC REQUIREMENTS:
+CRITICAL REQUIREMENTS:
 - ${tone.toUpperCase()} tone throughout
 - Focus on actionable insights about: ${prompt}
 - Each post must be under 280 characters
@@ -110,15 +113,40 @@ SPECIFIC REQUIREMENTS:
 - Sound like a knowledgeable human sharing genuine wisdom
 - No fabricated claims or fake authority
 - No AI-speak or corporate buzzwords
+- STRICTLY FORBIDDEN: Do not use double dashes (--) anywhere in the text
+- Use periods, commas, for punctuation instead
 
 ${PostType !== 'single' ? `
-THREAD STRUCTURE:
-- Post 1: Strong hook that promises value
-- Posts 2-${postCount-1}: Numbered insights (1/${postCount} format) that build on each other
-- Post ${postCount}: Summary with clear action step
+THREAD STRUCTURE & NUMBERING:
+- Post 1: Strong hook that promises value + thread indicator emoji (🧵 or ⬇️ or 👇) - NO NUMBERING
+- Posts 2-${postCount}: Numbered insights (1/${totalNumberedPosts}, 2/${totalNumberedPosts}, etc.) that build on each other
 - Each post must flow naturally to the next
 - Use transitional phrases to maintain connection
+- CRITICAL: Post 1 must end with a thread indicator emoji to signal this is a thread
+- CRITICAL: Final numbered post (${totalNumberedPosts}/${totalNumberedPosts}) must include a specific, actionable next step
+- CRITICAL: If you cannot generate ${postCount} posts with original, valuable content, return an error message instead of using generic fallbacks
+
+NUMBERING VALIDATION:
+- Hook post (Post 1): NO numbering at all
+- Numbered posts: Start from 1/${totalNumberedPosts} and end at ${totalNumberedPosts}/${totalNumberedPosts}
+- ALL numbered posts must use the same denominator: ${totalNumberedPosts}
+- Example sequence: Post 1 (no number), Post 2 (1/${totalNumberedPosts}), Post 3 (2/${totalNumberedPosts}), ..., Post ${postCount} (${totalNumberedPosts}/${totalNumberedPosts})
 ` : ''}
+
+CONTENT VALIDATION CHECKLIST:
+- Is this specific enough to provide genuine value?
+- Does each post contain actionable insights?
+- Are all posts consistent with the chosen tone?
+- Is the numbering system consistent throughout (all using /${totalNumberedPosts})?
+- Does the final post provide a clear, specific next step?
+- Are you avoiding all prohibited phrases and AI-speak?
+
+ERROR HANDLING:
+If you cannot generate original, valuable content for all ${postCount} posts, return this exact error response:
+{
+  "error": "Unable to generate ${postCount} posts with original insights for this topic. Please try a more specific prompt or different angle.",
+  "suggestion": "Consider narrowing your focus or providing more context about your target audience."
+}
 
 Return the response in this exact JSON format:
 ${PostType === 'single' ? 
@@ -130,44 +158,79 @@ ${PostType === 'single' ?
 }` :
 `[
   {
-    "content": "post content with proper numbering",
+    "content": "post content (hook with thread indicator emoji - NO numbering anywhere)",
     "characterCount": actual_number,
     "postNumber": 1,
     "coreInsight": "main insight of this post",
     "actionableElement": "specific action or takeaway"
   },
   {
-    "content": "post content continues the thread naturally",
+    "content": "post content with numbering (1/${totalNumberedPosts})",
     "characterCount": actual_number,
     "postNumber": 2,
     "coreInsight": "builds on previous insight",
     "actionableElement": "next step or application"
+  },
+  {
+    "content": "post content with final numbering (${totalNumberedPosts}/${totalNumberedPosts}) + specific next action",
+    "characterCount": actual_number,
+    "postNumber": ${postCount},
+    "coreInsight": "final key insight",
+    "actionableElement": "clear, specific action to take immediately"
   }
 ]`}`;
 };
 
-// Enhanced system prompt with better structure
-const TWITTER_CONTENT_STRATEGIST = `You are a world-class content strategist who creates Twitter/X posts that feel genuinely human-written and provide exceptional value.
+// Enhanced system prompt with better structure and stricter controls
+const TWITTER_CONTENT_STRATEGIST = `You are an elite content strategist who creates Twitter/X posts that feel genuinely human-written and provide exceptional, bookmark-worthy value.
 
-🎯 CORE MISSION: Create authentic, insight-rich content that reads like it came from a genuinely knowledgeable person sharing hard-earned wisdom.
+🎯 CORE MISSION: Create authentic, insight-rich content that reads like it came from a genuinely knowledgeable person sharing hard-earned wisdom that users will want to save and reference.
 
-🚫 ABSOLUTE PROHIBITIONS:
+🚫 ABSOLUTE PROHIBITIONS (ZERO TOLERANCE):
+• NO double dashes (--) anywhere in the text - use periods, commas only
 • NO false authority claims or fabricated personal stories
-• NO random dashes: "--" anywhere in the text
-• NO generic AI phrases: "game-changer", "unlock", "dive deep"
+• NO generic AI phrases: "game-changer", "unlock", "dive deep", "let's dive in", "here's the thing"
 • NO fake statistics or made-up numbers
 • NO corporate buzzwords or marketing speak
 • NO excessive emojis (max 2 per post)
 • NO markdown formatting (**, __, etc.)
+• NO vague advice - everything must be specific and actionable
+• NO fake citations like [1], [2], [3] - only include real, verifiable sources if any
+• NO fallback templates or generic responses
+• NO phrases like "Most people don't realize", "The truth is", "Here's what I learned"
+• NO ending posts with "Complexity is the enemy of execution" or similar generic statements
 
-✅ AUTHENTICITY STANDARDS:
-• Write like a thoughtful human sharing genuine insights
+🔢 THREAD NUMBERING SYSTEM (CRITICAL - FIXED):
+• Post 1: Hook only (NO numbering - completely clean)
+• Posts 2 through N: Use format "1/X, 2/X, 3/X" where X = total numbered posts (postCount - 1)
+• Example for 6-post thread: Post 1 (no number), Post 2 (1/5), Post 3 (2/5), Post 4 (3/5), Post 5 (4/5), Post 6 (5/5)
+• NEVER include the hook post in your denominator calculation
+• The denominator must be consistent throughout ALL numbered posts
+• Final numbered post must end with a specific, actionable next step
+
+NUMBERING VALIDATION RULES:
+• Hook post: Zero numbers, zero fractions - just content + thread emoji
+• First numbered post: Always starts with "1/X"
+• Last numbered post: Always ends with "X/X" where X is the same throughout
+• All denominators must match exactly
+• No skipped numbers in sequence
+
+⚠️ CONTENT QUALITY ENFORCEMENT:
+If you cannot generate original, valuable insights for the full requested thread length:
+- DO NOT use fallback templates
+- DO NOT create generic final posts
+- DO NOT pad threads with low-value content
+- INSTEAD: Return an error message asking for a more specific prompt
+
+✅ BOOKMARK-WORTHY STANDARDS:
+• Write like a thoughtful expert sharing genuine insights
 • Use universal truths and observable patterns
-• Share frameworks based on common sense and logic
+• Share frameworks based on proven principles
 • Make every word count - no fluff, no filler
-• Provide immediate, actionable value
-• Use specific, concrete examples
+• Provide immediate, actionable value that can be applied today
+• Use specific, concrete examples people can relate to
 • Write with conviction but without arrogance
+• Include counter-intuitive insights that challenge common thinking
 
 📝 WRITING STYLE GUIDE:
 • Short, punchy sentences with natural flow
@@ -177,6 +240,8 @@ const TWITTER_CONTENT_STRATEGIST = `You are a world-class content strategist who
 • Vary sentence length for readability
 • End with actionable advice
 • Use active voice over passive voice
+• Replace all double dashes with periods or single dashes
+• Avoid overused transition words and phrases
 
 🔥 SINGLE POST STRUCTURE (240-270 characters):
 1. HOOK (40-60 chars): Strong opening that stops scrolling
@@ -185,26 +250,75 @@ const TWITTER_CONTENT_STRATEGIST = `You are a world-class content strategist who
 4. ACTION (40-60 chars): What to do immediately
 
 🧵 THREAD STRUCTURE (2+ posts):
-POST 1: Hook + Promise of value coming
-POSTS 2-N: Numbered insights (1/n format) with seamless flow
-FINAL POST: Summary + Clear next step
+POST 1: Hook + Promise of specific value coming (NO NUMBERING) + Thread indicator emoji
+POSTS 2-N: Numbered insights with seamless flow
+- Use consistent numbering: 1/X, 2/X, 3/X (where X = number of numbered posts)
+- Each post must contain unique, actionable insight
+- Build logically from one post to the next
+- Final numbered post should include clear next step
 
-💡 VALUE DELIVERY FRAMEWORK:
+THREAD INDICATOR REQUIREMENTS:
+• Post 1 (hook) must end with one of these thread indicators: 🧵 or ⬇️ or 👇
+• Choose the emoji that best fits the tone and character count
+• The emoji should signal to users that this is a thread
+• Place the emoji at the very end of the hook post
+• Example: "Here's how to validate your startup idea without spending $1000 🧵"
+
+CRITICAL THREAD REQUIREMENTS:
+• Post 1 serves as the hook and setup - it gets NO number but MUST include thread indicator emoji
+• Numbered posts start from post 2 using format "1/X"
+• If you promise a specific number of insights, deliver exactly that many
+• Never use generic conclusions or fallback responses
+• Every post must provide distinct value
+• Complete the entire promised framework
+
+💡 VALUE DELIVERY FRAMEWORK (MUST INCLUDE ALL):
 Every post MUST deliver:
-1. IMMEDIATE INSIGHT: Something they can understand right now
-2. PRACTICAL APPLICATION: How to use this today
-3. SPECIFIC BENEFIT: What outcome they'll get
-4. BOOKMARK WORTHY: Reference value they'll return to
+1. IMMEDIATE INSIGHT: Something they can understand and apply right now
+2. PRACTICAL APPLICATION: Specific steps they can take today
+3. MEASURABLE BENEFIT: Clear outcome they'll achieve
+4. REFERENCE VALUE: Information they'll want to revisit
+5. COUNTER-INTUITIVE ELEMENT: Something that challenges conventional thinking
 
 📊 OUTPUT REQUIREMENTS:
 Return valid JSON format exactly as specified in the user prompt.
+If unable to generate quality content, return error message as specified.
 
-✨ QUALITY CHECK:
+🔍 QUALITY VALIDATION CHECKLIST:
+Before finalizing, ensure:
+- Zero double dashes (--) in any content
 - Sounds like a knowledgeable human wrote it
 - Zero fabricated claims or fake authority
 - Provides genuine, actionable value
 - Flows naturally without AI-speak
-- Every word serves a purpose`;
+- Every word serves a purpose
+- Contains specific, implementable advice
+- Includes insights worth bookmarking
+- No fake citations or reference numbers
+- Thread numbering is mathematically consistent
+- No generic fallback responses or templates
+- Each post provides distinct, valuable insight
+- Final post includes clear action step (not generic statement)
+
+⚡ ENGAGEMENT OPTIMIZATION:
+- Start with a strong, relatable hook
+- Use pattern interrupts to maintain attention
+- Include surprising statistics or insights (only if verifiable)
+- End with a clear call to action
+- Make it shareable and quotable
+- Build genuine curiosity for the next post
+
+🚨 ERROR HANDLING:
+If the prompt is too vague or you cannot generate original insights:
+- Return error message as specified in prompt
+- DO NOT create generic content to fill space
+- DO NOT use fallback templates
+- DO NOT make up insights to reach post count
+
+Remember: Quality over quantity. Better to return an error than to create generic, valueless content that contradicts your core mission of providing bookmark-worthy insights.
+
+FINAL VALIDATION:
+Each post must pass this test: "Would I personally bookmark this for future reference?" If not, revise or return an error.`;
 
 // Enhanced post generation with better error handling
 const generatePosts = async (prompt, tone, PostType, retryCount = 0) => {
@@ -277,9 +391,12 @@ const generatePosts = async (prompt, tone, PostType, retryCount = 0) => {
   }
 };
 
-// Enhanced fallback system
+// FIXED: Enhanced fallback system with correct numbering
 const createAuthenticFallback = (topic, index, total, PostType) => {
-  const threadPrefix = PostType !== 'single' ? `${index + 1}/${total} ` : '';
+  // Calculate correct numbering for fallback
+  const totalNumberedPosts = PostType !== 'single' ? total - 1 : 0;
+  const isHookPost = index === 0;
+  const threadPrefix = (!isHookPost && PostType !== 'single') ? `${index}/${totalNumberedPosts} ` : '';
   
   const templates = [
     {
@@ -296,7 +413,15 @@ const createAuthenticFallback = (topic, index, total, PostType) => {
     }
   ];
   
-  const template = templates[index % templates.length];
+  let template = templates[index % templates.length];
+  
+  // For hook post, remove numbering and add thread emoji
+  if (isHookPost && PostType !== 'single') {
+    template = {
+      pattern: "hook",
+      template: `Struggling with ${topic}? Here's a step-by-step breakdown with real examples and actionable tips 🧵`
+    };
+  }
   
   return {
     content: template.template,
@@ -304,9 +429,76 @@ const createAuthenticFallback = (topic, index, total, PostType) => {
     postNumber: index + 1,
     coreInsight: template.pattern,
     actionableElement: "immediate implementation",
-    authentic: true
+    authentic: true,
+    fallback: true,
+    message: "This is a fallback response - please try again for original, high-value content"
   };
 };
+
+// NEW: Post-processing validation function
+function validateThreadNumbering(posts, expectedPostCount) {
+  if (posts.length !== expectedPostCount) {
+    throw new Error(`Expected ${expectedPostCount} posts, got ${posts.length}`);
+  }
+  
+  const totalNumberedPosts = expectedPostCount - 1;
+  
+  // Validate hook post (first post)
+  const hookPost = posts[0];
+  if (hookPost.content.match(/\d+\/\d+/)) {
+    throw new Error("Hook post contains numbering - should be clean");
+  }
+  if (!hookPost.content.match(/[🧵⬇️👇]$/)) {
+    console.warn("Hook post missing thread indicator emoji");
+  }
+  
+  // Validate numbered posts
+  for (let i = 1; i < posts.length; i++) {
+    const post = posts[i];
+    const expectedNumber = `${i}/${totalNumberedPosts}`;
+    
+    if (!post.content.includes(expectedNumber)) {
+      throw new Error(`Post ${i + 1} should contain "${expectedNumber}", but doesn't`);
+    }
+  }
+  
+  // Validate final post has actionable element
+  const finalPost = posts[posts.length - 1];
+  if (!finalPost.actionableElement || finalPost.actionableElement.length < 10) {
+    console.warn("Final post lacks specific actionable element");
+  }
+  
+  return true;
+}
+
+// NEW: Helper function to clean any accidental numbering from hook post
+function cleanHookPost(content) {
+  return content.replace(/^\d+\/\d+\s*/, '').trim();
+}
+
+// NEW: Force-fix numbering in AI responses
+function fixNumberingInPosts(posts, expectedCount) {
+  const totalNumberedPosts = expectedCount - 1;
+  
+  return posts.map((post, index) => {
+    if (index === 0) {
+      // Hook post - remove any accidental numbering
+      post.content = post.content.replace(/^\d+\/\d+\s*/, '').trim();
+      return post;
+    }
+    
+    // Numbered posts - fix the numbering
+    const correctNumber = `${index}/${totalNumberedPosts}`;
+    
+    // Remove any existing numbering pattern
+    let content = post.content.replace(/^\d+\/\d+\s*/, '').trim();
+    
+    // Add correct numbering
+    post.content = `${correctNumber} ${content}`;
+    
+    return post;
+  });
+}
 
 // Enhanced content trimming
 const intelligentTrim = (content, maxLength = 270) => {
@@ -380,7 +572,7 @@ const validateInput = (req, res, next) => {
   next();
 };
 
-// Main API endpoint
+// UPDATED: Main API endpoint with validation and force-fix
 app.post('/api/generate-post', rateLimitMiddleware, validateInput, async (req, res) => {
   try {
     const { prompt, tone, PostType } = req.body;
@@ -403,8 +595,8 @@ app.post('/api/generate-post', rateLimitMiddleware, validateInput, async (req, r
       
       // Clean and parse AI response
       const cleanedResponse = aiResponse
-        .replace(/```json\n?|\n?```/g, '')
-        .replace(/```\n?|\n?```/g, '')
+        .replace(/``````/g, '')
+        .replace(/``````/g, '')
         .replace(/^[^[{]*/, '')
         .replace(/[^}\]]*$/, '')
         .trim();
@@ -413,6 +605,12 @@ app.post('/api/generate-post', rateLimitMiddleware, validateInput, async (req, r
       
       if (!Array.isArray(parsedPosts)) {
         parsedPosts = [parsedPosts];
+      }
+      
+      // NEW: Force-fix numbering regardless of what AI generated
+      if (PostType !== 'single') {
+        parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
+        console.log('🔧 Numbering force-corrected');
       }
       
       console.log('✅ AI generation successful');
@@ -437,6 +635,19 @@ app.post('/api/generate-post', rateLimitMiddleware, validateInput, async (req, r
         }
       } else {
         parsedPosts = parsedPosts.slice(0, expectedCount);
+      }
+    }
+
+    // Validate numbering (should pass now)
+    if (PostType !== 'single' && Array.isArray(parsedPosts)) {
+      try {
+        validateThreadNumbering(parsedPosts, expectedCount);
+        console.log('✅ Thread numbering validated successfully');
+      } catch (validationError) {
+        console.error('❌ Numbering validation still failed:', validationError.message);
+        // Force fix one more time
+        parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
+        console.log('🔧 Applied emergency numbering fix');
       }
     }
 
@@ -470,8 +681,9 @@ app.post('/api/generate-post', rateLimitMiddleware, validateInput, async (req, r
         PostType,
         expectedCount,
         actualCount: parsedPosts.length,
+        totalNumberedPosts: PostType !== 'single' ? expectedCount - 1 : 0,
         model: 'sonar-pro',
-        version: 'enhanced-v3',
+        version: 'enhanced-v4-force-fixed',
         timestamp: new Date().toISOString()
       }
     });
@@ -546,9 +758,11 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     service: 'X Post Generator Backend',
     hasApiKey: !!process.env.PERPLEXITY_API_KEY,
-    version: 'v3.0-enhanced',
+    version: 'v4.0-numbering-fixed',
     features: [
-      'Enhanced security with Helmet',
+      'Fixed thread numbering system',
+      'Enhanced validation',
+      'Force-fix numbering',
       'Improved rate limiting',
       'Better error handling',
       'Input validation',
@@ -600,7 +814,7 @@ app.listen(PORT, () => {
   console.log(`📡 API endpoint: http://localhost:${PORT}/api/generate-post`);
   console.log(`🔑 API Key configured: ${!!process.env.PERPLEXITY_API_KEY}`);
   console.log(`🛡️ Rate limiting: ${RATE_LIMIT_MAX} requests per minute`);
-  console.log(`✨ Features: Security, Validation, Retry Logic, Timeouts`);
+  console.log(`✨ Features: Fixed Numbering, Security, Validation, Retry Logic, Timeouts`);
 });
 
 // Export for testing
