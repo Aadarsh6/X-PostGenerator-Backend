@@ -553,7 +553,7 @@ const validateInput = (req, res, next) => {
     });
   }
   
-  const validTones = ['professional', 'casual', 'witty', 'inspirational', 'educational', 'contrarian'];
+  const validTones = ['professional', 'humorous', 'educational', 'controversial', 'casual', 'inspirational'];
   if (!tone || !validTones.includes(tone)) {
     return res.status(400).json({
       success: false,
