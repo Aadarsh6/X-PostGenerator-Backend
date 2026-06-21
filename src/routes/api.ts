@@ -4,16 +4,19 @@ import { createOptimizedPrompt } from '../services/promptBuilder.js';
 import { getPostCount } from '../utils/postCounter.js';
 import { createAuthenticFallback } from '../utils/fallback.js';
 import { intelligentTrim } from '../utils/trimmer.js';
-import { validateThreadNumbering, fixNumberingInPosts } from '../utils/validator.js';
-import type { Post } from '../types/index.js';
+import { fixNumberingInPosts } from '../utils/validator.js';
+import type { AuthRequest, Post } from '../types/index.js';
 import { generateWithGemini } from '../services/gemeni.js';
 import { validateInput } from '../middlewar/validateInput.js';
+import { authMiddleware } from '../Auth/middleware.js';
 
 const router = Router();
 
-router.post('/generate-post', validateInput, async (req: Request, res: Response) => {
+router.post('/generate-post', authMiddleware, validateInput, async (req: AuthRequest, res: Response) => {
   try {
     const { prompt, tone, PostType } = req.body;
+    const userId = req.userId!;
+
 
     console.log(`Generating ${PostType} posts for: "${prompt}" with ${tone} tone`);
 
@@ -31,10 +34,10 @@ router.post('/generate-post', validateInput, async (req: Request, res: Response)
       // Always normalize into an array, regardless of shape
       parsedPosts = Array.isArray(parsed) ? parsed : [parsed];
 
-      if (PostType !== 'single') {
-        parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
-        console.log('🔧 Numbering force-corrected');
-      }
+      //! if (PostType !== 'single') {
+      //   parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
+      //   console.log('🔧 Numbering force-corrected');
+      // }
 
       console.log('✅ AI generation successful');
 
@@ -60,15 +63,19 @@ router.post('/generate-post', validateInput, async (req: Request, res: Response)
       }
     }
 
+    //! if (PostType !== 'single') {
+    //   try {
+    //     validateThreadNumbering(parsedPosts, expectedCount);
+    //     console.log('✅ Thread numbering validated');
+    //   } catch (validationError) {
+    //     console.error('❌ Validation failed:', validationError instanceof Error ? validationError.message : String(validationError));
+    //     parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
+    //   }
+    // }
     if (PostType !== 'single') {
-      try {
-        validateThreadNumbering(parsedPosts, expectedCount);
-        console.log('✅ Thread numbering validated');
-      } catch (validationError) {
-        console.error('❌ Validation failed:', validationError instanceof Error ? validationError.message : String(validationError));
-        parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
-      }
-    }
+          parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
+        }
+
 
     parsedPosts = parsedPosts.map((post, index) => {
       if (!post.content) {

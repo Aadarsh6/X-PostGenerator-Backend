@@ -40,6 +40,7 @@ process.on('SIGINT', () => {
 
 app.listen(PORT, () => {
   console.log(`🚀 X Post Generator running on port ${PORT}`);
+  console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
   console.log('🔑 Key loaded:', env.GEMINI_API_KEY ? `${env.GEMINI_API_KEY.slice(0,6)}...` : 'MISSING');
   console.log(`📡 API: http://localhost:${PORT}/api/generate-post`);
   console.log(`🤖 Model: gemini-flash-latest`);

@@ -4,8 +4,10 @@ export const corsOptions: cors.CorsOptions = {
   origin: [
     'https://xcraft.aadarshm.me/',
     'https://x-post-generator-ruby.vercel.app',
+    "http://localhost:5175/dashboard",
     'http://localhost:3000',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'http://localhost:5175'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

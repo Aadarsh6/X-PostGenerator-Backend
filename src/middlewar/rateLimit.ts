@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 
 interface RequestData {
-    ip: string;
-    times: number[];
+  ip: string;
+  times: number[];
 }
 
 const requestCounts: Map<string, RequestData> = new Map();
@@ -10,13 +10,13 @@ const RATE_LIMIT_WINDOW = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 
 setInterval(() => {
-    const now = Date.now();
-    for (const [ip, requests] of requestCounts.entries()) {
+  const now = Date.now();
+  for (const [ip, requests] of requestCounts.entries()) {
     const recentRequests = requests.times.filter(time => now - time < RATE_LIMIT_WINDOW);
     if (recentRequests.length === 0) {
-        requestCounts.delete(ip);
+      requestCounts.delete(ip);
     } else {
-        requests.times = recentRequests;
+      requests.times = recentRequests;
     }
   }
 }, RATE_LIMIT_WINDOW);

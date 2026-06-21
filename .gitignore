@@ -10,3 +10,5 @@ node_modules/
 # Ignore system files
 .DS_Store
 Thumbs.db
+
+/generated/prisma

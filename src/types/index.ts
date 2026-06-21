@@ -1,3 +1,5 @@
+import type { Request } from "express";
+
 export type Tone = 
     | 'professional' 
     | 'humorous' 
@@ -28,6 +30,7 @@ export interface Post {
     originalLength?: number;
 }
 
+
 export interface GeneratePostResponse {
     success: boolean;
     posts: Post[];
@@ -42,4 +45,8 @@ export interface GeneratePostResponse {
     version: string;
     timestamp: string;
     };
+}
+
+export interface AuthRequest extends Request{
+    userId?: string
 }
