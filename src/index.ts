@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import apiRoutes from './routes/api.js';
 import { requestLogger } from './middlewar/logger.js';
 import { rateLimitMiddleware } from './middlewar/rateLimit.js';
+import authRoutes from './Auth/auth.route.js';
 
 const app = express();
 const PORT = env.PORT;
@@ -16,6 +17,7 @@ app.use(requestLogger);
 app.use(rateLimitMiddleware);
 
 app.use('/api', apiRoutes);
+app.use('/auth', authRoutes)
 
 app.use('*', (req: any, res: any) => {
   res.status(404).json({
@@ -23,7 +25,9 @@ app.use('*', (req: any, res: any) => {
     error: 'Endpoint not found',
     availableEndpoints: [
       'GET /api/health',
-      'POST /api/generate-post'
+      'POST /api/generate-post',
+      'POST /auth/signup',
+      'POST /auth/login'
     ]
   });
 });

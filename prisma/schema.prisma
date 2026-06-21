@@ -29,9 +29,11 @@ model Post {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   content        String
   threadId       String?
+  postNumber     Int      @default(1)
   postType       String   @default("single")
   tone           String?
   characterCount Int?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  @@index([threadId])
 }

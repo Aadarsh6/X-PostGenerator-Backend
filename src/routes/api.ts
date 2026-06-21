@@ -9,6 +9,7 @@ import type { AuthRequest, Post } from '../types/index.js';
 import { generateWithGemini } from '../services/gemeni.js';
 import { validateInput } from '../middlewar/validateInput.js';
 import { authMiddleware } from '../Auth/middleware.js';
+import prisma from '../../prisma/prisma.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
   try {
     const { prompt, tone, PostType } = req.body;
     const userId = req.userId!;
+    const threadId = PostType !== 'single' ? crypto.randomUUID():null
 
 
     console.log(`Generating ${PostType} posts for: "${prompt}" with ${tone} tone`);
@@ -34,11 +36,6 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       // Always normalize into an array, regardless of shape
       parsedPosts = Array.isArray(parsed) ? parsed : [parsed];
 
-      //! if (PostType !== 'single') {
-      //   parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
-      //   console.log('🔧 Numbering force-corrected');
-      // }
-
       console.log('✅ AI generation successful');
 
     } catch (aiError) {
@@ -46,11 +43,6 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       parsedPosts = Array.from({ length: expectedCount }, (_, i) =>
         createAuthenticFallback(prompt, i, expectedCount, PostType)
       );
-    }
-
-    // Safety net: guarantee parsedPosts is always an array before continuing
-    if (!Array.isArray(parsedPosts)) {
-      parsedPosts = [parsedPosts];
     }
 
     if (parsedPosts.length !== expectedCount) {
@@ -63,15 +55,7 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       }
     }
 
-    //! if (PostType !== 'single') {
-    //   try {
-    //     validateThreadNumbering(parsedPosts, expectedCount);
-    //     console.log('✅ Thread numbering validated');
-    //   } catch (validationError) {
-    //     console.error('❌ Validation failed:', validationError instanceof Error ? validationError.message : String(validationError));
-    //     parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
-    //   }
-    // }
+  
     if (PostType !== 'single') {
           parsedPosts = fixNumberingInPosts(parsedPosts, expectedCount);
         }
@@ -96,6 +80,31 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
         originalLength: originalLength
       };
     });
+
+parsedPosts = await Promise.all(
+      parsedPosts.map(async (post, index) => {
+        const saved = await prisma.post.create({
+          data: {
+            userId,
+            content: post.content,
+            threadId,
+            postType: PostType,
+            tone,
+            characterCount: post.characterCount,
+            postNumber: PostType === 'single' ? 1 : index,
+          },
+        });
+
+        return {
+          ...post,
+          id: saved.id,
+          threadId: saved.threadId,
+          postNumber: saved.postNumber,
+          createdAt: saved.createdAt,
+        };
+      })
+    );
+
 
     res.json({
       success: true,

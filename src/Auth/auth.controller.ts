@@ -49,7 +49,7 @@ export const signup = async(req:Request, res:Response)=>{
 
 }
 
-const login = async(req:Request, res:Response)=>{
+export const login = async(req:Request, res:Response)=>{
 
     const { email, password } = req.body
 //!Checking if user exists or not

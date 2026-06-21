@@ -52,11 +52,10 @@ export async function generateWithGemini(
           type: "OBJECT",
           properties: {
             content: { type: "STRING" },
-            postNumber: { type: "INTEGER" },
             coreInsight: { type: "STRING" },
             actionableElement: { type: "STRING" }
           },
-          required: ["content", "postNumber"]
+          required: ["content"]
         }
       }
 }
