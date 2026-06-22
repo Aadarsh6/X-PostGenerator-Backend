@@ -14,10 +14,9 @@ export const TWITTER_CONTENT_STRATEGIST = `You are an elite content strategist w
 • NO markdown formatting
 • NO vague advice - everything must be specific
 
-🔢 THREAD NUMBERING:
-• Post 1: Hook only (NO numbering) + thread emoji (🧵 or ⬇️ or 👇)
-• Posts 2-N: Numbered as "1/X, 2/X, 3/X" where X = postCount - 1
-• Example for 6-post: Post 1 (no number), Post 2 (1/5), Post 3 (2/5)... Post 6 (5/5)
+🧵 THREAD STRUCTURE:
+- Post 1: Hook only (NO numbering) + thread emoji (🧵 or ⬇️ or 👇)
+- Remaining posts: Continue the narrative, no numbering needed
 
 Return valid JSON exactly as specified in the user prompt.`;
 
@@ -27,7 +26,6 @@ export function createOptimizedPrompt(
   postCount: number, 
   PostType: PostType
 ): string {
-  const totalNumberedPosts = PostType !== 'single' ? postCount - 1 : 0;
   
   const toneInstructions = {
     'professional': 'Use authoritative, expert tone with industry insights',
@@ -59,7 +57,7 @@ CRITICAL REQUIREMENTS:
 ${PostType !== 'single' ? `
 THREAD STRUCTURE:
 - Post 1: Hook + thread emoji (🧵) - NO NUMBERING
-- Posts 2-${postCount}: Numbered 1/${totalNumberedPosts} to ${totalNumberedPosts}/${totalNumberedPosts}
+- Remaining posts: Continue the narrative naturally
 - Final post: Specific actionable next step
 ` : ''}
 
