@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from "express";
 import type { AuthRequest } from "../types/index.js";
 import jwt from "jsonwebtoken"
+import { env } from "../config/env.js";
 
 export const authMiddleware =(req: AuthRequest, res: Response, next:NextFunction)=>{
     const token = req.headers.authorization?.split(" ")[1]
@@ -12,6 +13,8 @@ export const authMiddleware =(req: AuthRequest, res: Response, next:NextFunction
         req.userId = verify.userId
         next()
     } catch (error) {
-        res.status(401``````````````).json({message:"Can't authorized user, re-loggin", error})
-    }
-}
+        return res.status(401).json({
+                message: "Invalid or expired token, please log in again",
+                ...(env.NODE_ENV === 'development' && { error })
+        });
+}};

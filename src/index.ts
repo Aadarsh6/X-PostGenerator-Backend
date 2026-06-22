@@ -27,7 +27,9 @@ app.use('*', (req: any, res: any) => {
       'GET /api/health',
       'POST /api/generate-post',
       'POST /auth/signup',
-      'POST /auth/login'
+      'POST /auth/login',
+      'GET /api/posts',
+      'DELETE /api/posts/:id'
     ]
   });
 });

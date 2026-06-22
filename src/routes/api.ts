@@ -132,6 +132,50 @@ parsedPosts = await Promise.all(
   }
 });
 
+router.get("/posts", authMiddleware, async(req:AuthRequest, res: Response)=>{
+  try {
+    const userId = req.userId as string
+    const posts = await prisma.post.findMany({
+      where: { userId },  
+      orderBy: {createdAt: 'desc'}
+    })
+
+    const grouped = new Map<string, typeof posts>();
+    for (const post of posts){
+    const key = post.threadId ?? post.id;
+    if(!grouped.has(key))grouped.set(key, [])
+      grouped.get(key)!.push(post)
+    }
+    const threads = Array.from(grouped.values()).map((group) =>
+      group.sort((a, b) => a.postNumber - b.postNumber)
+    );
+
+    res.json({ success: true, count: threads.length, threads });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch posts' });
+  }
+});
+
+router.delete("/posts/:id", authMiddleware, async(req:AuthRequest,  res:Response)=>{
+  try {
+    const userId = req.userId as string
+    const { id } = req.params as { id: string };
+
+    const result = await prisma.post.deleteMany({
+      where: {id, userId},
+    })
+    if(result.count === 0){
+      return res.status(404).json({ success: false, error: 'Post not found' });
+    }
+    res.json({ success: true, message: 'Post deleted' });
+  }catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete post' });
+  }
+});
+
+
 router.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
