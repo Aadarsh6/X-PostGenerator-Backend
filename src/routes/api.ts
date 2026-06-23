@@ -6,7 +6,7 @@ import { createAuthenticFallback } from '../utils/fallback.js';
 import { intelligentTrim } from '../utils/trimmer.js';
 import { fixNumberingInPosts } from '../utils/validator.js';
 import type { AuthRequest, Post } from '../types/index.js';
-import { generateWithGemini } from '../services/gemeni.js';
+import { generateWithGemini } from '../services/groq.js';
 import { validateInput } from '../middlewar/validateInput.js';
 import { authMiddleware } from '../Auth/middleware.js';
 import prisma from '../../prisma/prisma.js';
