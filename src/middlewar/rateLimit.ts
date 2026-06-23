@@ -7,7 +7,7 @@ interface RequestData {
 
 const requestCounts: Map<string, RequestData> = new Map();
 const RATE_LIMIT_WINDOW = 60 * 1000;
-const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_MAX = 10;
 
 setInterval(() => {
   const now = Date.now();

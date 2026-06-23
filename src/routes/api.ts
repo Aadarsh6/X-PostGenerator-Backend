@@ -81,29 +81,6 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       };
     });
 
-parsedPosts = await Promise.all(
-      parsedPosts.map(async (post, index) => {
-        const saved = await prisma.post.create({
-          data: {
-            userId,
-            content: post.content,
-            threadId,
-            postType: PostType,
-            tone,
-            characterCount: post.characterCount,
-            postNumber: PostType === 'single' ? 1 : index,
-          },
-        });
-
-        return {
-          ...post,
-          id: saved.id,
-          threadId: saved.threadId,
-          postNumber: saved.postNumber,
-          createdAt: saved.createdAt,
-        };
-      })
-    );
 
 
     res.json({
@@ -157,6 +134,25 @@ router.get("/posts", authMiddleware, async(req:AuthRequest, res: Response)=>{
   }
 });
 
+router.delete('/posts/thread/:threadId', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const threadId = req.params.threadId as string
+    
+    const result = await prisma.post.deleteMany({
+      where: { threadId, userId },
+    });
+
+    if (result.count === 0) {
+      return res.status(404).json({ success: false, error: 'Thread not found' });
+    }
+    
+    res.json({ success: true, deleted: result.count });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to delete thread' });
+  }
+});
+
 router.delete("/posts/:id", authMiddleware, async(req:AuthRequest,  res:Response)=>{
   try {
     const userId = req.userId as string
@@ -174,6 +170,40 @@ router.delete("/posts/:id", authMiddleware, async(req:AuthRequest,  res:Response
     res.status(500).json({ success: false, error: 'Failed to delete post' });
   }
 });
+
+router.post('/posts/save', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const { posts, PostType, tone } = req.body;
+
+    if (!Array.isArray(posts) || posts.length === 0) {
+      return res.status(400).json({ success: false, error: 'Posts array is required' });
+    }
+
+    const threadId = PostType !== 'single' ? crypto.randomUUID() : null;
+
+    const saved = await Promise.all(
+      posts.map(async (post: Post, index: number) => {
+        return prisma.post.create({
+          data: {
+            userId,
+            content: post.content,
+            threadId,
+            postType: PostType,
+            tone,
+            characterCount: post.characterCount,
+            postNumber: PostType === 'single' ? 1 : index,
+          },
+        });
+      })
+    );
+
+    res.json({ success: true, saved: saved.length, threadId });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to save posts' });
+  }
+});
+
 
 
 router.get('/health', (req: Request, res: Response) => {
