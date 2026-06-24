@@ -35,10 +35,10 @@ export function createAuthenticFallback(
   }
   
   return {
-    content: template?.template,
-    characterCount: template?.template.length,
+    content: template!.template,
+    characterCount: template!.template.length,
     postNumber: index + 1,
-    coreInsight: template?.pattern,
+    coreInsight: template!.pattern,
     actionableElement: "immediate implementation",
     authentic: true,
     fallback: true,
