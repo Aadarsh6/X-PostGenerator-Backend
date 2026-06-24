@@ -47,10 +47,10 @@ process.on('SIGINT', () => {
 app.listen(PORT, () => {
   console.log(`🚀 X Post Generator running on port ${PORT}`);
   console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-  console.log('🔑 Key loaded:', env.GEMINI_API_KEY ? `${env.GEMINI_API_KEY.slice(0,6)}...` : 'MISSING');
+  console.log('🔑 Key loaded:', env.GROQ_API_KEY ? `${env.GROQ_API_KEY.slice(0,6)}...` : 'MISSING');
   console.log(`📡 API: http://localhost:${PORT}/api/generate-post`);
-  console.log(`🤖 Model: 'gemini-2.5-flash',`);
-  console.log(`🛡️ Rate limiting: 5 requests/minute`);
+  console.log(`🤖 Model: 'llama-3.3-70b-versatile',`);
+  console.log(`🛡️ Rate limiting: 20 requests/minute`);
 });
 
 export default app;

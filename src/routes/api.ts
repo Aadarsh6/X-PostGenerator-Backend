@@ -32,9 +32,14 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       const { content: aiResponse } = aiResult;
 
       const parsed: any = JSON.parse(aiResponse);
+console.log('🔍 PARSED:', JSON.stringify(parsed, null, 2));
 
       // Always normalize into an array, regardless of shape
-      parsedPosts = Array.isArray(parsed) ? parsed : [parsed];
+        // parsedPosts = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.posts) ? parsed.posts : [parsed]);
+
+      const unwrapped = Array.isArray(parsed) ? parsed : (parsed.posts || parsed.data || parsed.items || Object.values(parsed)[0]);
+      parsedPosts = Array.isArray(unwrapped) ? unwrapped : [parsed];
+
 
       console.log('✅ AI generation successful');
 
@@ -93,8 +98,8 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
         expectedCount,
         actualCount: parsedPosts.length,
         totalNumberedPosts: PostType !== 'single' ? expectedCount - 1 : 0,
-        model: 'gemini-flash-latest',
-        version: 'gemini-only-v1',
+        model: 'llama-3.3-70b-versatile',
+        version: 'llama-3',
         timestamp: new Date().toISOString()
       }
     });
@@ -210,7 +215,7 @@ router.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
     service: 'X Post Generator Backend',
-    model: 'gemini-flash-latest',
+    model: 'llama-3.3-70b-versatile',
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
