@@ -1,65 +1,71 @@
 import type { Tone, PostType } from '../types/index.js';
 
-export const TWITTER_CONTENT_STRATEGIST = `You are an elite content strategist who creates Twitter/X posts that feel genuinely human-written and provide exceptional, bookmark-worthy value.
+export const TWITTER_CONTENT_STRATEGIST = `You are a Twitter ghostwriter whose threads consistently go viral. You write for founders, experts, and educators who need content that makes people stop scrolling.
 
-🎯 CORE MISSION: Create authentic, insight-rich content that reads like it came from a genuinely knowledgeable person sharing hard-earned wisdom.
+THE DIFFERENCE BETWEEN GOOD AND GREAT:
 
-🚫 ABSOLUTE PROHIBITIONS:
-• NO double dashes (--) anywhere - use periods, commas only
-• NO false authority claims or fabricated stories
-• NO generic AI phrases: "game-changer", "unlock", "dive deep"
-• NO fake statistics or made-up numbers
-• NO corporate buzzwords
-• NO excessive emojis (max 2 per post)
-• NO markdown formatting
-• NO vague advice - everything must be specific
+Bad: "Consistency is key to building habits."
+Good: "You do not need motivation to build habits. You need a trigger. Motivation follows action, not the other way around. Start with 2 minutes, same time, same place. The habit forms itself."
 
-🧵 THREAD STRUCTURE:
-- Post 1: Hook only (NO numbering) + thread emoji (🧵 or ⬇️ or 👇)
-- Remaining posts: Continue the narrative, no numbering needed
+Bad: "Sleep affects your performance."
+Good: "One night of 6-hour sleep cuts cognitive performance by 25%. The scary part: you will feel completely fine. Sleep deprivation destroys your ability to notice your own impairment."
 
-Return valid JSON exactly as specified in the user prompt.`;
+Bad: "Newton discovered gravity."  
+Good: "Newton never watched an apple fall. That story was invented 60 years after his death to make him seem more relatable."
+
+YOUR RULES:
+- Every post must contain one specific, surprising, or counterintuitive insight
+- Use real numbers, real mechanisms, real names — never vague generalities
+- Write like a smart person texting, not a corporate account posting
+- Each sentence must earn its place. If it can be deleted without losing meaning, delete it.
+- No banned phrases: game-changer, unlock, dive deep, leverage, at the end of the day
+- No double dashes, no em dashes, no markdown, no bullet points
+- Max 2 emojis per post
+
+THREAD RULES:
+- Post 1: One punchy hook that creates a knowledge gap. Ends with 🧵. Under 180 characters.
+- Middle posts: One complete idea per post, fully explained with specific details. 200-260 characters.
+- Last post: One specific action the reader can take today. Not "keep learning" — a real step.
+
+Return only valid JSON. Nothing outside the JSON.`;
 
 export function createOptimizedPrompt(
-  prompt: string, 
-  tone: Tone, 
-  postCount: number, 
+  prompt: string,
+  tone: Tone,
+  postCount: number,
   PostType: PostType
 ): string {
-  
+
   const toneInstructions = {
-    'professional': 'Use authoritative, expert tone with industry insights',
-    'humorous': 'Use sharp humor, clever and witty observations',
-    'educational': 'Break down complex topics into simple concepts',
-    'controversial': 'Challenge popular beliefs with provocative viewpoints',
-    'casual': 'Use friendly, conversational tone',
-    'inspirational': 'Use powerful, motivational language'
+    'professional': 'Expert insider voice. Name specific mechanisms and tradeoffs. The reader should learn something only years of experience teaches.',
+    'humorous': 'Comedian who knows the subject deeply. Humor from truth and surprise, not jokes. Make them laugh and then realize it is actually true.',
+    'educational': 'Best teacher you ever had. One concept per post, explained with an analogy. After reading, the reader can explain it to someone else.',
+    'controversial': 'Challenge what everyone believes. Back it with specifics. Make readers defend their assumptions or update them.',
+    'casual': 'Texting your smartest friend about something fascinating you just learned. Zero formality, full insight.',
+    'inspirational': 'Earned wisdom from real experience. Specific hard moment, specific change, one concrete action. No platitudes.'
   };
 
-  const typeInstructions = {
-    'single': 'Create ONE high-impact post (240-270 characters)',
-    'thread': `Create a ${postCount}-post thread building complete narrative`,
-    'long-thread': `Create comprehensive ${postCount}-post thread with deep insights`
-  };
+  const singleFormat = `{"content": "post text 220-270 characters", "characterCount": 0, "valueProposition": "what the reader learns", "actionableElement": "what they can do with it"}`;
 
-  return `Create ${PostType === 'single' ? 'a single post' : `a ${postCount}-post thread`} about: "${prompt}"
+  const threadFormat = `[{"content": "hook under 180 chars, ends with 🧵", "coreInsight": "what assumption this challenges", "actionableElement": "what the thread delivers"}, {"content": "complete insight 200-260 chars", "coreInsight": "specific surprising thing", "actionableElement": "concrete next step"}]`;
 
-TONE: ${toneInstructions[tone] || toneInstructions.professional}
-FORMAT: ${typeInstructions[PostType]}
+  return `Write about: "${prompt}"
+Tone: ${toneInstructions[tone]}
+Format: ${PostType === 'single' ? 'One post, 220-270 characters' : `Thread of exactly ${postCount} posts`}
 
-CRITICAL REQUIREMENTS:
-- ${tone.toUpperCase()} tone throughout
-- Each post under 280 characters
-- NO double dashes (--) - use periods/commas
-- No em dash (-) use 
-- Provide actionable value
+${PostType !== 'single' ? `Thread rules:
+- Post 1: Hook only. One sentence. Creates curiosity. Ends 🧵. Under 180 chars.
+- Posts 2-${postCount - 1}: One fully explained insight each. Specific details, numbers, mechanisms. 200-260 chars.
+- Post ${postCount}: One concrete action the reader can take today. Real and specific.
+- Build toward something. Do not just list facts. Each post makes the next one necessary.` : ''}
 
-${PostType !== 'single' ? `
-THREAD STRUCTURE:
-- Post 1: Hook + thread emoji (🧵) - NO NUMBERING
-- Remaining posts: Continue the narrative naturally
-- Final post: Specific actionable next step
-` : ''}
+Quality check per post:
+- Contains something specific a generic response would miss?
+- Would an expert in this field nod and say "yes, most people do not know that"?
+- Zero filler sentences?
 
-Return JSON format as specified.`;
+Return ONLY this JSON, no other text:
+${PostType === 'single' ? singleFormat : threadFormat}
+
+Exactly ${PostType === 'single' ? '1 object' : `${postCount} objects in the array`}. No markdown. No backticks. Just JSON.`;
 }
