@@ -17,7 +17,7 @@ app.use(requestLogger);
 app.use(rateLimitMiddleware);
 
 app.use('/api', apiRoutes);
-app.use('/auth', authRoutes)
+app.use('/auth', authRoutes);
 
 app.use('*', (req: any, res: any) => {
   res.status(404).json({
