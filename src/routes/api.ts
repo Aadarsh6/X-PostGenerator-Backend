@@ -32,10 +32,8 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
       const { content: aiResponse } = aiResult;
 
       const parsed: any = JSON.parse(aiResponse);
-console.log('🔍 PARSED:', JSON.stringify(parsed, null, 2));
 
-      // Always normalize into an array, regardless of shape
-        // parsedPosts = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.posts) ? parsed.posts : [parsed]);
+//!DEV console.log('🔍 PARSED:', JSON.stringify(parsed, null, 2));
 
       const unwrapped = Array.isArray(parsed) ? parsed : (parsed.posts || parsed.data || parsed.items || Object.values(parsed)[0]);
       parsedPosts = Array.isArray(unwrapped) ? unwrapped : [parsed];
