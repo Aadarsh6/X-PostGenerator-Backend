@@ -23,8 +23,8 @@ YOUR RULES:
 - Max 2 emojis per post
 
 THREAD RULES:
-- Post 1: One punchy hook that creates a knowledge gap. Ends with 🧵. Under 180 characters.
-- Middle posts: One complete idea per post, fully explained with specific details. 200-260 characters.
+- Post 1: One punchy hook that creates a knowledge gap. Ends with 🧵. Under 210 characters.
+- Middle posts: One complete idea per post, fully explained with specific details. 240-270 characters.
 - Last post: One specific action the reader can take today. Not "keep learning" — a real step.
 
 Return only valid JSON. Nothing outside the JSON.`;
@@ -47,15 +47,15 @@ export function createOptimizedPrompt(
 
   const singleFormat = `{"content": "post text 220-270 characters", "characterCount": 0, "valueProposition": "what the reader learns", "actionableElement": "what they can do with it"}`;
 
-  const threadFormat = `[{"content": "hook under 180 chars, ends with 🧵", "coreInsight": "what assumption this challenges", "actionableElement": "what the thread delivers"}, {"content": "complete insight 200-260 chars", "coreInsight": "specific surprising thing", "actionableElement": "concrete next step"}]`;
+  const threadFormat = `[{"content": "hook under 180 chars, ends with 🧵", "coreInsight": "what assumption this challenges", "actionableElement": "what the thread delivers"}, {"content": "complete insight 240-270 chars", "coreInsight": "specific surprising thing", "actionableElement": "concrete next step"}]`;
 
   return `Write about: "${prompt}"
 Tone: ${toneInstructions[tone]}
-Format: ${PostType === 'single' ? 'One post, 220-270 characters' : `Thread of exactly ${postCount} posts`}
+Format: ${PostType === 'single' ? 'One post, 260-270 characters' : `Thread of exactly ${postCount} posts`}
 
 ${PostType !== 'single' ? `Thread rules:
 - Post 1: Hook only. One sentence. Creates curiosity. Ends 🧵. Under 180 chars.
-- Posts 2-${postCount - 1}: One fully explained insight each. Specific details, numbers, mechanisms. 200-260 chars.
+- Posts 2-${postCount - 1}: One fully explained insight each. Specific details, numbers, mechanisms. 240-260 chars.
 - Post ${postCount}: One concrete action the reader can take today. Real and specific.
 - Build toward something. Do not just list facts. Each post makes the next one necessary.` : ''}
 

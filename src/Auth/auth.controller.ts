@@ -42,7 +42,7 @@ export const signup = async(req:Request, res:Response)=>{
             expiresIn: "7d"
         }
     )
-    res.status(200).json({token, id:signup.id, name:signup.name, email:signup.email })
+    res.status(200).json({token, id:signup.id, name:signup.name, email:signup.email, createdAt:signup.createdAt })
     } catch (error) {
         res.status(500).json({message:"Error while creating user", error})
     }
@@ -79,7 +79,18 @@ export const login = async(req:Request, res:Response)=>{
                 expiresIn: "7d"
             }
     )
-        res.status(200).json({token, id: userExists.id, name: userExists.name, email: userExists.email})
+    // res.status(200).json({token, id: userExists.id, name: userExists.name, email: userExists.email, createdAt: userExists.createdAt})
+
+
+const payload = {
+  token,
+  id: userExists.id,
+  name: userExists.name,
+  email: userExists.email,
+  createdAt: userExists.createdAt,
+}
+
+res.status(200).json(payload)
     } catch (error) {
         res.status(500).json({message: "Error logging in", error})
     }

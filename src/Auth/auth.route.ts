@@ -5,7 +5,6 @@ import { validateLogin, validateSignup } from "./auth.validation.js";
 const router = Router()
 
 router.post("/signup", validateSignup, signup)
-router.post("/login",validateLogin, login)
-router.post("/logout", login)
+router.post("/login", login)
 
 export default router
