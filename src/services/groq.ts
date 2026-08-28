@@ -50,7 +50,7 @@ Return this exact JSON array structure:
 Return exactly ${postCount} objects in the array.`;
 
   const requestBody = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'llama3-8b-8192',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
