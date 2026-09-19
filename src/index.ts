@@ -2,7 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import { setupCORS } from './config/cors.js';
 import { env } from './config/env.js';
-// import apiRoutes from './routes/api.js';
+import apiRoutes from './routes/api.js';
 import { requestLogger } from './middlewar/logger.js';
 import { rateLimitMiddleware } from './middlewar/rateLimit.js';
 import authRoutes from './Auth/auth.route.js';
