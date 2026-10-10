@@ -1,0 +1,17 @@
+
+name: Ping Render Health Endpoint
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          curl --fail --silent --show-error \
+            --max-time 30 \
+            https://x-postgenerator-backend.onrender.com/api/health
