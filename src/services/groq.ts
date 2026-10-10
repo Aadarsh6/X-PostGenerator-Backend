@@ -14,7 +14,10 @@ interface GroqPost {
   actionableElement: string;
 }
 
-type GroqError = Error & { status?: number; code?: string };
+type GroqError = Error & {
+  status?: number | undefined;
+  code?: string | undefined;
+};
 
 const SINGLE_POST_SCHEMA = {
   type: 'object',
