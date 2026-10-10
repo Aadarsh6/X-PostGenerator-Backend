@@ -5,158 +5,284 @@ export interface GeminiResponse {
   expectedCount: number;
 }
 
+interface GroqPost {
+  content: string;
+  coreInsight: string;
+  actionableElement: string;
+}
+
+const SINGLE_POST_SCHEMA = {
+  type: 'object',
+  properties: {
+    content: { type: 'string' },
+    characterCount: { type: 'integer' },
+    valueProposition: { type: 'string' },
+    actionableElement: { type: 'string' },
+  },
+  required: [
+    'content',
+    'characterCount',
+    'valueProposition',
+    'actionableElement',
+  ],
+  additionalProperties: false,
+} as const;
+
+const THREAD_SCHEMA = {
+  type: 'object',
+  properties: {
+    posts: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          content: { type: 'string' },
+          coreInsight: { type: 'string' },
+          actionableElement: { type: 'string' },
+        },
+        required: [
+          'content',
+          'coreInsight',
+          'actionableElement',
+        ],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['posts'],
+  additionalProperties: false,
+} as const;
+
 export async function generateWithGemini(
   prompt: string,
   tone: string,
   PostType: string,
   optimizedPrompt: string,
   postCount: number,
-  retryCount: number = 0
+  retryCount = 0,
 ): Promise<GeminiResponse> {
   const MAX_RETRIES = 2;
+  const isSingle = PostType === 'single';
+  const expectedCount = isSingle ? 1 : postCount;
 
-  console.log(`Making request to Groq API (attempt ${retryCount + 1})...`);
+  console.log(
+    `Making request to Groq API (attempt ${retryCount + 1})...`,
+  );
 
-  const systemPrompt = `You are an elite content strategist who creates Twitter/X posts that feel genuinely human-written and provide exceptional, bookmark-worthy value.
+  const systemPrompt = `You are an expert Twitter/X content strategist.
 
-🎯 CORE MISSION: Create authentic, insight-rich content that reads like it came from a genuinely knowledgeable person sharing hard-earned wisdom.
+Write useful, specific, human-sounding posts.
 
-🚫 ABSOLUTE PROHIBITIONS:
-- NO double dashes (--) anywhere
-- NO false authority claims or fabricated stories  
-- NO generic AI phrases: "game-changer", "unlock", "dive deep"
-- NO fake statistics or made-up numbers
-- NO corporate buzzwords
-- NO excessive emojis (max 2 per post)
-- NO markdown formatting
-- NO vague advice - everything must be specific
+Rules:
+- Never fabricate statistics, facts, names, or personal experiences.
+- Avoid generic AI phrases, corporate buzzwords, and filler.
+- Never use double dashes or em dashes.
+- No markdown formatting inside post content.
+- Maximum two emojis per post.
+- Do not number posts inside their content.
+- The backend handles numbering.
+- Follow the requested character limits.
+- Return only JSON matching the supplied schema.`;
 
-🧵 THREAD STRUCTURE:
-- Post 1: Hook only (NO numbering) + thread emoji (🧵 or ⬇️ or 👇)
-- Remaining posts: Continue the narrative, no numbering needed
-
-Return ONLY valid JSON. No explanation, no markdown, no backticks.`;
-
-const userPrompt =
-  PostType === 'single'
+  const userPrompt = isSingle
     ? `${optimizedPrompt}
 
-Return one valid JSON object with exactly these fields:
-{
-  "content": "your post here",
-  "characterCount": 0,
-  "valueProposition": "brief value proposition",
-  "actionableElement": "what the reader should do"
-}
+Topic: ${prompt}
+Tone: ${tone}
 
-Return a JSON object, not an array.`
+Return exactly one post using the required single-post JSON schema.
+The content should follow the character limit in the instructions.
+Do not return an array.`
     : `${optimizedPrompt}
 
-Return one valid JSON object containing a "posts" array:
-{
-  "posts": [
-    {
-      "content": "post content here",
-      "coreInsight": "key insight",
-      "actionableElement": "what the reader should do"
-    }
-  ]
-}
+Topic: ${prompt}
+Tone: ${tone}
 
-The "posts" array must contain exactly ${postCount} objects.
-Do not use ellipses or omit any posts.
-Return only valid JSON.`;
+Return exactly ${postCount} posts in the required thread schema.
+The posts array must contain exactly ${postCount} objects.
+Post 1 must be a compelling hook ending with 🧵.
+Middle posts must each explain one complete insight.
+The last post must give one concrete action.
+Do not number posts inside their content.
+Do not omit posts or use ellipses.
+Return an object containing the posts array, not a top-level array.`;
 
   const requestBody = {
-    model: "openai/gpt-oss-20b",
+    model: 'openai/gpt-oss-20b',
     messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'system' as const, content: systemPrompt },
+      { role: 'user' as const, content: userPrompt },
     ],
     temperature: 0.7,
-    max_tokens: PostType === 'long-thread' ? 5000 : 3000,
+    max_tokens: isSingle ? 1500 : 5000,
     response_format: {
-  type: "json_schema",
-  json_schema: {
-    name: "thread_response",
-    strict: true,
-    schema: {
-      type: "object",
-      properties: {
-        posts: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              content: { type: "string" },
-              coreInsight: { type: "string" },
-              actionableElement: { type: "string" }
-            },
-            required: [
-              "content",
-              "coreInsight",
-              "actionableElement"
-            ],
-            additionalProperties: false
-          }
-        }
+      type: 'json_schema' as const,
+      json_schema: {
+        name: isSingle ? 'single_post_response' : 'thread_response',
+        strict: true,
+        schema: isSingle ? SINGLE_POST_SCHEMA : THREAD_SCHEMA,
       },
-      required: ["posts"],
-      additionalProperties: false
-    }
-  }
-},
+    },
   };
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      45000,
+    );
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
-      signal: controller.signal,
-    });
+    let response: Response;
 
-    clearTimeout(timeoutId);
+    try {
+      response = await fetch(
+        'https://api.groq.com/openai/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${env.GROQ_API_KEY}`,
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        },
+      );
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
-      console.error(`🔴 Groq API rejected the request — status ${response.status}`);
       const errorData = await response.text();
-      console.error(`🔴 Raw error: ${errorData}`);
-      throw new Error(`API error: ${response.status} - ${errorData}`);
+
+      console.error(
+        `Groq API rejected the request: HTTP ${response.status}`,
+      );
+      console.error(`Groq error: ${errorData}`);
+
+      const error = new Error(
+        `Groq API error ${response.status}: ${errorData}`,
+      ) as Error & { status?: number };
+
+      error.status = response.status;
+      throw error;
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const choice = data.choices?.[0];
+    const content = choice?.message?.content;
 
-    if (!content) {
-      console.error('🔴 No content found in Groq response');
-      throw new Error('Invalid API response - no content generated');
+    if (choice?.finish_reason === 'length') {
+      throw new Error(
+        'Groq response was truncated. Increase max_tokens or simplify the prompt.',
+      );
     }
 
-    return {
-      content: content.trim(),
-      expectedCount: postCount,
-    };
+    if (typeof content !== 'string' || !content.trim()) {
+      throw new Error('Groq returned an empty response.');
+    }
 
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    console.error(`API failed (attempt ${retryCount + 1}):`, errorMessage);
+    let parsed: unknown;
+
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      throw new Error('Groq returned invalid JSON.');
+    }
+
+    if (isSingle) {
+      const post = parsed as Record<string, unknown>;
+
+      if (
+        !post ||
+        Array.isArray(post) ||
+        typeof post.content !== 'string' ||
+        typeof post.characterCount !== 'number' ||
+        typeof post.valueProposition !== 'string' ||
+        typeof post.actionableElement !== 'string'
+      ) {
+        throw new Error('Groq returned an invalid single-post structure.');
+      }
+
+      return {
+        content: JSON.stringify(post),
+        expectedCount: 1,
+      };
+    }
+
+    const thread = parsed as { posts?: unknown };
 
     if (
-      retryCount < MAX_RETRIES &&
-      !errorMessage.includes('401') &&
-      !errorMessage.includes('429') &&
-      !errorMessage.includes('404')
+      !thread ||
+      !Array.isArray(thread.posts) ||
+      !thread.posts.every(
+        (post: unknown) => {
+          if (!post || typeof post !== 'object') return false;
+
+          const item = post as Record<string, unknown>;
+
+          return (
+            typeof item.content === 'string' &&
+            typeof item.coreInsight === 'string' &&
+            typeof item.actionableElement === 'string'
+          );
+        },
+      )
     ) {
-      console.log(`Retrying in ${(retryCount + 1) * 3000}ms...`);
-      await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 3000));
-      return generateWithGemini(prompt, tone, PostType, optimizedPrompt, postCount, retryCount + 1);
+      throw new Error('Groq returned an invalid thread structure.');
+    }
+
+    if (thread.posts.length !== postCount) {
+      throw new Error(
+        `Expected ${postCount} posts but received ${thread.posts.length}.`,
+      );
+    }
+
+    const posts = thread.posts as GroqPost[];
+
+    // Remove accidental numbering generated by the model.
+    const normalizedPosts = posts.map((post) => ({
+      ...post,
+      content: post.content
+        .replace(/^\s*\d+\s*\/\s*\d+\s*/, '')
+        .trim(),
+    }));
+
+    return {
+      content: JSON.stringify(normalizedPosts),
+      expectedCount: postCount,
+    };
+  } catch (err) {
+    const error = err as Error & { status?: number };
+    const status = error.status;
+
+    console.error(
+      `AI generation failed (attempt ${retryCount + 1}):`,
+      error.message,
+    );
+
+    // Retry transient server errors, rate limits, and network failures.
+    // Do not retry identical requests for ordinary client errors.
+    const retryable =
+      status === undefined ||
+      status === 408 ||
+      status === 429 ||
+      (status >= 500 && status <= 599);
+
+    if (retryCount < MAX_RETRIES && retryable) {
+      const delay = (retryCount + 1) * 3000;
+
+      console.log(`Retrying in ${delay}ms...`);
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      return generateWithGemini(
+        prompt,
+        tone,
+        PostType,
+        optimizedPrompt,
+        postCount,
+        retryCount + 1,
+      );
     }
 
     throw err;
