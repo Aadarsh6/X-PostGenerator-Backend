@@ -75,7 +75,37 @@ Return only valid JSON.`;
     ],
     temperature: 0.7,
     max_tokens: PostType === 'long-thread' ? 5000 : 3000,
-    response_format: { type: 'json_object' },
+    response_format: {
+  type: "json_schema",
+  json_schema: {
+    name: "thread_response",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        posts: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              content: { type: "string" },
+              coreInsight: { type: "string" },
+              actionableElement: { type: "string" }
+            },
+            required: [
+              "content",
+              "coreInsight",
+              "actionableElement"
+            ],
+            additionalProperties: false
+          }
+        }
+      },
+      required: ["posts"],
+      additionalProperties: false
+    }
+  }
+},
   };
 
   try {
