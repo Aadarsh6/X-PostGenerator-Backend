@@ -37,20 +37,38 @@ export async function generateWithGemini(
 
 Return ONLY valid JSON. No explanation, no markdown, no backticks.`;
 
-  const userPrompt = PostType === 'single'
+const userPrompt =
+  PostType === 'single'
     ? `${optimizedPrompt}
 
-Return this exact JSON structure:
-{"content": "your post here", "characterCount": 0, "valueProposition": "brief value prop", "actionableElement": "what reader should do"}`
+Return one valid JSON object with exactly these fields:
+{
+  "content": "your post here",
+  "characterCount": 0,
+  "valueProposition": "brief value proposition",
+  "actionableElement": "what the reader should do"
+}
+
+Return a JSON object, not an array.`
     : `${optimizedPrompt}
 
-Return this exact JSON array structure:
-[{"content": "post content here", "coreInsight": "key insight", "actionableElement": "what reader should do"}, ...]
+Return one valid JSON object containing a "posts" array:
+{
+  "posts": [
+    {
+      "content": "post content here",
+      "coreInsight": "key insight",
+      "actionableElement": "what the reader should do"
+    }
+  ]
+}
 
-Return exactly ${postCount} objects in the array.`;
+The "posts" array must contain exactly ${postCount} objects.
+Do not use ellipses or omit any posts.
+Return only valid JSON.`;
 
   const requestBody = {
-    model: 'qwen/qwen3.6-27b',
+    model: "openai/gpt-oss-20b",
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }

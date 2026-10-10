@@ -96,8 +96,8 @@ router.post('/generate-post', authMiddleware, validateInput, async (req: AuthReq
         expectedCount,
         actualCount: parsedPosts.length,
         totalNumberedPosts: PostType !== 'single' ? expectedCount - 1 : 0,
-        model: 'llama-3.3-70b-versatile',
-        version: 'llama-3',
+        model: "openai/gpt-oss-20b",
+        version: 'openai',
         timestamp: new Date().toISOString()
       }
     });
@@ -213,7 +213,7 @@ router.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
     service: 'X Post Generator Backend',
-    model: 'llama-3.3-70b-versatile',
+    model: "openai/gpt-oss-20b",
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
   });
